@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Production Dashboard</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+:root{
+  --bg:#f6f7f9; --panel:#fff; --ink:#1a2233; --muted:#6b7480;
+  --line:#e5e8ef; --accent:#1f4e78;
+  --alert:#e63946; --alert-bg:#fdecef; --alert-text:#8b1a26;
+  --good:#2a9d8f; --good-bg:#e6f5f3;
+  --qc:#8e44ad; --qc-bg:#f1e6f8;
+  --leave:#7a869a; --leave-bg:#eef0f4;
+  --holiday-bg:#e8ebf0;
+}
+:root:not([data-theme="light"]){
+  @media (prefers-color-scheme: dark){
+    --bg:#0f1420; --panel:#171d2c; --ink:#e6ebf5; --muted:#9aa5b8;
+    --line:#252c3d; --accent:#4a9fe0;
+    --alert:#ff5a6e; --alert-bg:#3a1a20; --alert-text:#ffb0ba;
+    --good:#3ecfbc; --good-bg:#12332e;
+    --qc-bg:#2a1c3a; --leave-bg:#1e2432; --holiday-bg:#1a1f2c;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0f1420; --panel:#171d2c; --ink:#e6ebf5; --muted:#9aa5b8;
+  --line:#252c3d; --accent:#4a9fe0;
+  --alert:#ff5a6e; --alert-bg:#3a1a20; --alert-text:#ffb0ba;
+  --good:#3ecfbc; --good-bg:#12332e;
+  --qc-bg:#2a1c3a; --leave-bg:#1e2432; --holiday-bg:#1a1f2c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  font-size:14px;line-height:1.4}
+
+.gate{position:fixed;inset:0;background:var(--bg);display:flex;
+  align-items:center;justify-content:center;z-index:1000;padding:20px}
+.gate-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;
+  padding:36px 32px;max-width:400px;width:100%;text-align:center;
+  box-shadow:0 8px 30px rgba(0,0,0,0.06)}
+.lock{font-size:44px;margin-bottom:12px}
+.gate h2{margin:0 0 6px;font-size:18px;font-weight:700}
+.gate p{margin:0 0 22px;color:var(--muted);font-size:13px}
+.gate input{width:100%;padding:12px 14px;border:1px solid var(--line);
+  border-radius:8px;font-size:14px;font-family:inherit;background:var(--bg);
+  color:var(--ink);margin-bottom:12px;outline:none}
+.gate input:focus{border-color:var(--accent)}
+.gate button{width:100%;padding:12px;background:var(--accent);color:#fff;
+  border:0;border-radius:8px;font-size:14px;font-weight:700;
+  font-family:inherit;cursor:pointer;letter-spacing:0.02em}
+.gate button:hover{filter:brightness(1.1)}
+.gate .err{color:var(--alert);font-size:12px;font-weight:600;
+  margin-top:10px;min-height:16px}
+.gate .whitelist{margin-top:18px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:11px;color:var(--muted);text-align:left}
+.gate .whitelist b{display:block;margin-bottom:6px;text-transform:uppercase;
+  letter-spacing:0.05em;font-size:10px}
+
+.wrap{max-width:1400px;margin:0 auto;padding:20px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;
+  gap:12px;margin-bottom:20px;flex-wrap:wrap}
+h1{margin:0 0 4px;font-size:22px;font-weight:700}
+.sub{margin:0;color:var(--muted);font-size:13px}
+.who{background:var(--panel);border:1px solid var(--line);border-radius:20px;
+  padding:6px 14px;font-size:12px;color:var(--muted);display:flex;
+  align-items:center;gap:8px}
+.who b{color:var(--ink)}
+.who a{color:var(--accent);text-decoration:none;font-size:11px;cursor:pointer}
+.who a:hover{text-decoration:underline}
+.refresh-note{font-size:11px;color:var(--muted);margin-top:4px}
+
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--line);margin-bottom:20px;
+  overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tab{padding:10px 18px;background:transparent;border:0;cursor:pointer;
+  font-family:inherit;font-size:14px;font-weight:600;color:var(--muted);
+  border-bottom:2px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab .dot{display:inline-block;margin-left:6px;background:var(--alert);color:#fff;
+  font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;min-width:18px;text-align:center}
+
+.summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;margin-bottom:16px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  padding:12px 14px}
+.stat.alert{background:var(--alert-bg);border-color:var(--alert)}
+.stat .lbl{font-size:11px;color:var(--muted);font-weight:600;
+  letter-spacing:0.05em;text-transform:uppercase;margin-bottom:4px}
+.stat.alert .lbl{color:var(--alert)}
+.stat .val{font-size:22px;font-weight:700}
+.stat.alert .val{color:var(--alert-text)}
+
+.legend{display:flex;flex-wrap:wrap;gap:14px;padding:8px 12px;
+  background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  margin-bottom:16px;font-size:12px;color:var(--muted)}
+.legend b{color:var(--alert);margin-right:4px}
+
+.tbl-wrap{background:var(--panel);border:1px solid var(--line);border-radius:8px;
+  overflow:auto;max-height:75vh}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:var(--panel);position:sticky;top:0;z-index:2;
+  padding:9px 8px;text-align:center;font-weight:700;font-size:11px;
+  color:var(--muted);border-bottom:2px solid var(--line);
+  text-transform:uppercase;letter-spacing:0.03em;white-space:nowrap}
+th.emp{text-align:left;left:0;z-index:3;min-width:180px}
+th.rollup{background:var(--panel);position:sticky;right:0;z-index:2}
+th .wd{font-weight:400;font-size:10px;opacity:0.7;text-transform:none;letter-spacing:0}
+td{padding:7px 8px;border-bottom:1px solid var(--line);text-align:center;
+  font-variant-numeric:tabular-nums;white-space:nowrap}
+td.emp{text-align:left;font-weight:600;position:sticky;left:0;background:var(--panel);z-index:1}
+tr:hover td{background:rgba(31,78,120,0.04)}
+tr:hover td.emp{background:var(--panel)}
+.team-pill{display:inline-block;font-size:10px;padding:1px 6px;border-radius:8px;
+  margin-left:6px;font-weight:600;letter-spacing:0.03em;
+  background:rgba(31,78,120,0.12);color:var(--accent)}
+.team-pill.tr{background:rgba(244,162,97,0.2);color:#c56b1f}
+
+td.alert-cell{background:var(--alert-bg);color:var(--alert-text);font-weight:700}
+td.good-cell{background:var(--good-bg);color:var(--good);font-weight:600}
+td.qc-cell{background:var(--qc-bg);color:var(--qc);font-size:11px;font-weight:600}
+td.l-cell{background:var(--leave-bg);color:var(--leave);font-size:11px;font-weight:600}
+td.h-cell{background:var(--holiday-bg);color:var(--muted);font-size:11px;font-weight:600}
+td.rollup{font-weight:700;background:var(--panel)}
+td.rollup.alert-cell{background:var(--alert-bg)}
+td.rollup.good-cell{background:var(--good-bg)}
+
+.empty{padding:40px;text-align:center;color:var(--muted);font-style:italic}
+.loading{padding:60px;text-align:center;color:var(--muted)}
+.hidden{display:none !important}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <div class="gate-card">
+    <div class="lock">🔒</div>
+    <h2>Sign in to view report</h2>
+    <p>Production Dashboard · Daily refresh from Grafana</p>
+    <input type="email" id="emailInp" placeholder="your.name@100ms.ai" autocomplete="email">
+    <button id="signInBtn">Sign in</button>
+    <div class="err" id="gateErr"></div>
+    <div class="whitelist">
+      <b>Authorised viewers</b>
+      Souvik · Hosni · Jeswanth · Karthik · Sudeesh · Ravi · Indranil · Ashish
+    </div>
+  </div>
+</div>
+
+<div class="wrap hidden" id="app">
+  <div class="head">
+    <div>
+      <h1>Production Dashboard</h1>
+      <p class="sub">Case counts, talk time, compliance &amp; review · Alert if daily &lt; 8 or monthly avg &lt; 10</p>
+      <p class="refresh-note" id="refreshNote"></p>
+    </div>
+    <div class="who">Signed in as <b id="whoName">—</b> <a id="signOut">Sign out</a></div>
+  </div>
+  <div id="loading" class="loading">Loading latest data…</div>
+  <div class="tabs hidden" id="tabs"></div>
+  <div id="content"></div>
+</div>
+
+<script>
+const VIEWERS = {
+  "souvik.choudhury@100ms.ai": "Souvik",
+  "hosni@100ms.ai": "Hosni",
+  "jeswanth.s@100ms.ai": "Jeswanth",
+  "km.karthik@100ms.ai": "Karthik",
+  "sudeesh@100ms.ai": "Sudeesh",
+  "thakur.ravi@100ms.ai": "Ravi",
+  "indranil.dey@100ms.ai": "Indranil",
+  "aatrey.ashish@100ms.ai": "Ashish"
+};
+
+const $ = id => document.getElementById(id);
+const gate = $("gate"), app = $("app"), emailInp = $("emailInp"), gateErr = $("gateErr");
+
+function tryAuth(email){
+  const key = (email || "").trim().toLowerCase();
+  if (VIEWERS[key]) {
+    try { localStorage.setItem("prodDash_user", key); } catch(e){}
+    showApp(key);
+    return true;
+  }
+  return false;
+}
+function showApp(key){
+  $("whoName").textContent = VIEWERS[key];
+  gate.classList.add("hidden");
+  app.classList.remove("hidden");
+  loadData();
+}
+$("signInBtn").addEventListener("click", () => {
+  if (!tryAuth(emailInp.value))
+    gateErr.textContent = "That email isn't on the access list. Contact Shubham if you should have access.";
+});
+emailInp.addEventListener("keydown", e => { if (e.key === "Enter") $("signInBtn").click(); });
+$("signOut").addEventListener("click", () => {
+  try { localStorage.removeItem("prodDash_user"); } catch(e){}
+  app.classList.add("hidden"); gate.classList.remove("hidden");
+  emailInp.value = ""; gateErr.textContent = "";
+});
+try {
+  const saved = localStorage.getItem("prodDash_user");
+  if (saved && VIEWERS[saved]) showApp(saved);
+} catch(e){}
+
+let DATA = {};
+let MONTHS = [];
+const ALERT_DAY = 8, ALERT_AVG = 10;
+const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmtSecs = s => { s = +s||0; const h=Math.floor(s/3600), m=Math.floor((s%3600)/60); return h?`${h}h ${m}m`:`${m}m`; };
+
+async function loadData(){
+  try {
+    const r = await fetch("data.json?ts=" + Date.now());
+    if (!r.ok) throw new Error("HTTP " + r.status);
+    DATA = await r.json();
+    MONTHS = Object.keys(DATA);
+    $("loading").classList.add("hidden");
+    $("tabs").classList.remove("hidden");
+    const def = MONTHS.find(m => DATA[m].employees.some(e => Object.values(e.days).some(x => x.s === "W"))) || MONTHS[0];
+    if (def) render(def);
+    // Show last refresh time from most recent Last-Modified-ish (best effort: latest day filled)
+    let latest = null;
+    for (const m of MONTHS) {
+      for (const e of DATA[m].employees) {
+        for (const [d, x] of Object.entries(e.days)) {
+          if (x.s === "W") { const key = m + " " + d; if (!latest || key > latest) latest = key; }
+        }
+      }
+    }
+    if (latest) $("refreshNote").textContent = "Latest data: " + latest;
+  } catch(e) {
+    $("loading").innerHTML = `<div style="color:var(--alert)">Failed to load data.json — ${esc(e.message)}</div>`;
+  }
+}
+
+function summarize(e){
+  let sum=0, worked=0, leaves=0, qc=0, alertDays=0, talk=0, fails=0, review=0;
+  Object.values(e.days).forEach(x => {
+    if (x.s === "W") {
+      sum += x.v||0; worked++;
+      if ((x.v||0) < ALERT_DAY) alertDays++;
+      talk += x.tt||0; fails += x.f||0; review += x.r||0;
+    } else if (x.s === "L") leaves++;
+    else if (x.s === "QC") qc++;
+  });
+  const avg = worked ? sum/worked : 0;
+  return {sum, worked, avg, leaves, qc, alertDays, talk, fails, review, avgAlert: worked>0 && avg<ALERT_AVG};
+}
+function countAlerts(m){
+  let t=0; DATA[m].employees.forEach(e => { const s=summarize(e); t += s.alertDays + (s.avgAlert?1:0); }); return t;
+}
+function renderTabs(active){
+  $("tabs").innerHTML = MONTHS.map(m => {
+    const a = countAlerts(m);
+    return `<button class="tab ${m===active?'active':''}" data-m="${esc(m)}">${esc(m.replace(" 2026",""))}${a?`<span class="dot">${a}</span>`:""}</button>`;
+  }).join("");
+  document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => render(t.dataset.m)));
+}
+function render(month){
+  renderTabs(month);
+  const md = DATA[month];
+  const emps = md.employees.map(e => ({...e, s: summarize(e)}));
+  const hasData = emps.some(e => e.s.worked > 0);
+  if (!hasData) {
+    $("content").innerHTML = `<div class="tbl-wrap"><div class="empty">No production data for ${esc(month)} yet.</div></div>`;
+    return;
+  }
+  const totalCases = emps.reduce((a,e)=>a+e.s.sum,0);
+  const totalWorked = emps.reduce((a,e)=>a+e.s.worked,0);
+  const teamAvg = totalWorked ? totalCases/totalWorked : 0;
+  const active = emps.filter(e=>e.s.worked>0).length;
+  const dayAlerts = emps.reduce((a,e)=>a+e.s.alertDays,0);
+  const avgAlerts = emps.filter(e=>e.s.avgAlert).length;
+  const totalTalk = emps.reduce((a,e)=>a+e.s.talk,0);
+  const totalFails = emps.reduce((a,e)=>a+e.s.fails,0);
+  const totalReview = emps.reduce((a,e)=>a+e.s.review,0);
+  const kpis = `
+    <div class="stat"><div class="lbl">Total Cases</div><div class="val">${totalCases.toLocaleString()}</div></div>
+    <div class="stat"><div class="lbl">Team Avg</div><div class="val">${teamAvg.toFixed(2)}</div></div>
+    <div class="stat"><div class="lbl">Active</div><div class="val">${active}</div></div>
+    <div class="stat"><div class="lbl">Talk Time</div><div class="val">${fmtSecs(totalTalk)}</div></div>
+    <div class="stat ${totalFails?'alert':''}"><div class="lbl">Compliance Fails</div><div class="val">${totalFails}</div></div>
+    <div class="stat"><div class="lbl">Needs Review</div><div class="val">${totalReview}</div></div>
+    <div class="stat ${dayAlerts?'alert':''}"><div class="lbl">⚠ Day &lt;8</div><div class="val">${dayAlerts}</div></div>
+    <div class="stat ${avgAlerts?'alert':''}"><div class="lbl">⚠ Avg &lt;10</div><div class="val">${avgAlerts}</div></div>
+  `;
+  const days = md.days;
+  const head = `<tr>
+    <th class="emp">Employee</th>
+    ${days.map(d => `<th>${d.d}<br><span class="wd">${d.wd||""}</span></th>`).join("")}
+    <th class="rollup">Total</th>
+    <th class="rollup">Avg</th>
+    <th class="rollup">Talk</th>
+    <th class="rollup">Fails</th>
+    <th class="rollup">Review</th>
+  </tr>`;
+  emps.sort((a,b) => {
+    const aBad = a.s.avgAlert || a.s.alertDays>0 ? 1 : 0;
+    const bBad = b.s.avgAlert || b.s.alertDays>0 ? 1 : 0;
+    if (aBad !== bBad) return bBad - aBad;
+    return b.s.avg - a.s.avg;
+  });
+  const body = emps.map(e => {
+    const cells = days.map(d => {
+      const c = e.days[d.d];
+      if (!c) return `<td style="color:var(--muted)">·</td>`;
+      if (c.s === "W") {
+        const cls = c.v < ALERT_DAY ? "alert-cell" : (c.v >= 12 ? "good-cell" : "");
+        return `<td class="${cls}">${c.v % 1 === 0 ? c.v : c.v.toFixed(1)}</td>`;
+      }
+      if (c.s === "QC") return `<td class="qc-cell">QC</td>`;
+      if (c.s === "L")  return `<td class="l-cell">L</td>`;
+      if (c.s === "H")  return `<td class="h-cell">H</td>`;
+      return `<td style="color:var(--muted)">${esc(c.s)}</td>`;
+    }).join("");
+    const avgCls = e.s.worked === 0 ? "" : (e.s.avgAlert ? "alert-cell" : "good-cell");
+    const avgTxt = e.s.worked ? e.s.avg.toFixed(2) : "—";
+    const pill = `<span class="team-pill ${e.team==='Transport'?'tr':''}">${e.team}</span>`;
+    const failsCls = e.s.fails > 0 ? "alert-cell" : "";
+    return `<tr>
+      <td class="emp">${esc(e.name)}${pill}</td>
+      ${cells}
+      <td class="rollup">${e.s.sum}</td>
+      <td class="rollup ${avgCls}">${avgTxt}</td>
+      <td class="rollup">${fmtSecs(e.s.talk)}</td>
+      <td class="rollup ${failsCls}">${e.s.fails}</td>
+      <td class="rollup">${e.s.review}</td>
+    </tr>`;
+  }).join("");
+  $("content").innerHTML = `
+    <div class="summary">${kpis}</div>
+    <div class="legend">
+      <span><b>⚠</b> Red = daily &lt; 8 or monthly avg &lt; 10</span>
+      <span style="color:var(--good)">■</span>Green = day ≥ 12 or avg ≥ 10
+      <span>QC · L (leave) · H (holiday)</span>
+    </div>
+    <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+  `;
+}
+</script>
+</body>
+</html>
