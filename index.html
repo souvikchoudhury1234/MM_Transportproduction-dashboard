@@ -108,6 +108,11 @@ body{margin:0;background:var(--bg);color:var(--ink);
   background:linear-gradient(135deg,var(--grad-1),var(--grad-2));
   border-color:transparent;
   box-shadow:0 4px 12px rgba(102,126,234,0.35)}
+.tab.tab-attention{border-color:var(--alert);color:var(--alert)}
+.tab.tab-attention:hover{border-color:var(--alert);color:var(--alert-text)}
+.tab.tab-attention.active{background:linear-gradient(135deg,#e63946,#f4a261);
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 12px rgba(230,57,70,0.4)}
 .tab .dot{display:inline-block;margin-left:8px;background:var(--alert);color:#fff;
   font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;min-width:20px;
   text-align:center;box-shadow:0 2px 6px rgba(230,57,70,0.4)}
@@ -143,7 +148,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
   margin-bottom:16px;font-size:12px;color:var(--muted);
   box-shadow:0 2px 8px rgba(0,0,0,0.04)}
 .legend .chip{display:inline-flex;align-items:center;gap:5px;font-weight:600}
-.legend .box{width:14px;height:14px;border-radius:4px;display:inline-block}
+.legend .box{width:16px;height:16px;border-radius:4px;display:inline-block;border:2px solid currentColor}
 
 .tbl-wrap{background:var(--panel);border-radius:12px;
   overflow:auto;max-height:75vh;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
@@ -207,7 +212,7 @@ td.rollup.good-cell{background:var(--good-bg) !important;color:var(--good-text)}
   <div class="head">
     <div>
       <h1>📊 Production Dashboard</h1>
-      <p class="sub">Case counts, talk time, compliance & needs-review · Alert if daily &lt; 8 or monthly avg &lt; 10</p>
+      <p class="sub">Case counts per agent · Alert if daily &lt; 8 or monthly avg &lt; 10</p>
       <p class="refresh-note" id="refreshNote"></p>
     </div>
     <div class="who">Signed in as <b id="whoName">—</b> <a id="signOut">Sign out</a></div>
@@ -309,15 +314,91 @@ function summarize(e){
 function countAlerts(m){
   let t=0; DATA[m].employees.forEach(e => { const s=summarize(e); t += s.alertDays + (s.avgAlert?1:0); }); return t;
 }
+const ATTENTION_MONTHS_FROM = "September 2026"; // include this month and later
+const ATTENTION_AVG_THRESHOLD = 8;
+
+function attentionRows(){
+  // return list of {name, team, month, avg, sum, worked, daysBelow8}
+  const rows = [];
+  const startIdx = MONTHS.indexOf(ATTENTION_MONTHS_FROM);
+  if (startIdx < 0) return rows;
+  for (let i = startIdx; i < MONTHS.length; i++){
+    const m = MONTHS[i];
+    DATA[m].employees.forEach(e => {
+      const s = summarize(e);
+      if (s.worked > 0 && s.avg < ATTENTION_AVG_THRESHOLD){
+        rows.push({name: e.name, team: e.team, month: m,
+          avg: s.avg, sum: s.sum, worked: s.worked, daysBelow8: s.alertDays});
+      }
+    });
+  }
+  rows.sort((a,b) => a.avg - b.avg);
+  return rows;
+}
+
 function renderTabs(active){
-  $("tabs").innerHTML = MONTHS.map(m => {
+  const attCount = attentionRows().length;
+  const monthTabs = MONTHS.map(m => {
     const a = countAlerts(m);
     return `<button class="tab ${m===active?'active':''}" data-m="${esc(m)}">${esc(m.replace(" 2026",""))}${a?`<span class="dot">${a}</span>`:""}</button>`;
   }).join("");
+  const attTab = `<button class="tab tab-attention ${active==='__attention'?'active':''}" data-m="__attention">🚨 Needs Attention${attCount?`<span class="dot">${attCount}</span>`:""}</button>`;
+  $("tabs").innerHTML = attTab + monthTabs;
   document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => render(t.dataset.m)));
 }
+function renderAttention(){
+  renderTabs("__attention");
+  $("dataNote").classList.add("hidden");
+  const rows = attentionRows();
+  const summary = `
+    <div class="summary">
+      <div class="stat ${rows.length?'alert':'c-active'}">
+        <div class="lbl"><span class="icon">🚨</span>Agents Needing Attention</div>
+        <div class="val">${rows.length}</div>
+      </div>
+      <div class="stat c-cases">
+        <div class="lbl"><span class="icon">📅</span>Since</div>
+        <div class="val" style="font-size:16px">${esc(ATTENTION_MONTHS_FROM)}</div>
+      </div>
+      <div class="stat c-fails">
+        <div class="lbl"><span class="icon">📊</span>Threshold</div>
+        <div class="val" style="font-size:16px">Avg &lt; ${ATTENTION_AVG_THRESHOLD}</div>
+      </div>
+    </div>`;
+  if (!rows.length){
+    $("content").innerHTML = summary + `
+      <div class="tbl-wrap"><div class="empty">🎉 No agents currently below the attention threshold. Great work!</div></div>`;
+    return;
+  }
+  const head = `<tr>
+    <th class="emp">Agent</th>
+    <th>Month</th>
+    <th>Avg / Day</th>
+    <th>Total Cases</th>
+    <th>Days Worked</th>
+    <th>Days &lt; 8</th>
+  </tr>`;
+  const body = rows.map(r => {
+    const pill = `<span class="team-pill ${r.team==='Transport'?'tr':''}">${r.team}</span>`;
+    return `<tr>
+      <td class="emp">${esc(r.name)}${pill}</td>
+      <td>${esc(r.month.replace(" 2026",""))}</td>
+      <td class="alert-cell">${r.avg.toFixed(2)}</td>
+      <td>${r.sum}</td>
+      <td>${r.worked}</td>
+      <td class="${r.daysBelow8>0?'alert-cell':''}">${r.daysBelow8}</td>
+    </tr>`;
+  }).join("");
+  $("content").innerHTML = summary + `
+    <div class="data-note"><b>Action needed:</b> The agents below have a monthly average of fewer than ${ATTENTION_AVG_THRESHOLD} cases per day (from ${esc(ATTENTION_MONTHS_FROM)} onward). Sorted worst first.</div>
+    <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+  `;
+}
+
 function render(month){
+  if (month === "__attention"){ renderAttention(); return; }
   renderTabs(month);
+  $("dataNote").classList.add("hidden");
   const md = DATA[month];
   const emps = md.employees.map(e => ({...e, s: summarize(e)}));
   const hasData = emps.some(e => e.s.worked > 0);
@@ -335,18 +416,13 @@ function render(month){
   const totalFails = emps.reduce((a,e)=>a+e.s.fails,0);
   const totalReview = emps.reduce((a,e)=>a+e.s.review,0);
 
-  const noData = totalTalk === 0 && totalFails === 0 && totalReview === 0;
-  $("dataNote").classList.toggle("hidden", !noData);
-  if (noData) $("dataNote").innerHTML =
-    `<b>Note:</b> Talk time, compliance fails and needs-review show 0 for ${esc(month)} because historical data was imported from Excel (case counts only). These fill in from next weekly Grafana refresh onward.`;
+  const noData = false;
+  $("dataNote").classList.add("hidden");
 
   const kpis = `
     <div class="stat c-cases"><div class="lbl"><span class="icon">📋</span>Total Cases</div><div class="val">${totalCases.toLocaleString()}</div></div>
     <div class="stat c-avg"><div class="lbl"><span class="icon">📊</span>Team Avg</div><div class="val">${teamAvg.toFixed(2)}</div></div>
-    <div class="stat c-active"><div class="lbl"><span class="icon">👥</span>Active</div><div class="val">${active}</div></div>
-    <div class="stat c-talk"><div class="lbl"><span class="icon">📞</span>Talk Time</div><div class="val">${fmtSecs(totalTalk)}</div></div>
-    <div class="stat c-fails ${totalFails?'alert':''}"><div class="lbl"><span class="icon">⚠️</span>Compliance Fails</div><div class="val">${totalFails}</div></div>
-    <div class="stat c-review"><div class="lbl"><span class="icon">🔍</span>Needs Review</div><div class="val">${totalReview}</div></div>
+    <div class="stat c-active"><div class="lbl"><span class="icon">👥</span>Active Agents</div><div class="val">${active}</div></div>
     <div class="stat ${dayAlerts?'alert':'c-fails'}"><div class="lbl"><span class="icon">🚨</span>Day &lt;8</div><div class="val">${dayAlerts}</div></div>
     <div class="stat ${avgAlerts?'alert':'c-fails'}"><div class="lbl"><span class="icon">🚨</span>Avg &lt;10</div><div class="val">${avgAlerts}</div></div>
   `;
@@ -356,9 +432,6 @@ function render(month){
     ${days.map(d => `<th>${d.d}<br><span class="wd">${d.wd||""}</span></th>`).join("")}
     <th class="rollup">Total</th>
     <th class="rollup">Avg</th>
-    <th class="rollup">Talk</th>
-    <th class="rollup">Fails</th>
-    <th class="rollup">Review</th>
   </tr>`;
   emps.sort((a,b) => {
     const aBad = a.s.avgAlert || a.s.alertDays>0 ? 1 : 0;
@@ -382,15 +455,11 @@ function render(month){
     const avgCls = e.s.worked === 0 ? "" : (e.s.avgAlert ? "alert-cell" : "good-cell");
     const avgTxt = e.s.worked ? e.s.avg.toFixed(2) : "—";
     const pill = `<span class="team-pill ${e.team==='Transport'?'tr':''}">${e.team}</span>`;
-    const failsCls = e.s.fails > 0 ? "alert-cell" : "";
     return `<tr>
       <td class="emp">${esc(e.name)}${pill}</td>
       ${cells}
       <td class="rollup">${e.s.sum}</td>
       <td class="rollup ${avgCls}">${avgTxt}</td>
-      <td class="rollup">${fmtSecs(e.s.talk)}</td>
-      <td class="rollup ${failsCls}">${e.s.fails}</td>
-      <td class="rollup">${e.s.review}</td>
     </tr>`;
   }).join("");
   $("content").innerHTML = `
@@ -398,9 +467,9 @@ function render(month){
     <div class="legend">
       <span class="chip"><span class="box" style="background:var(--alert-bg);border:2px solid var(--alert)"></span>Alert: daily &lt; 8 or avg &lt; 10</span>
       <span class="chip"><span class="box" style="background:var(--good-bg);border:2px solid var(--good)"></span>Good: day ≥ 12 or avg ≥ 10</span>
-      <span class="chip"><span class="box" style="background:var(--qc-bg)"></span>QC</span>
-      <span class="chip"><span class="box" style="background:var(--leave-bg)"></span>Leave</span>
-      <span class="chip"><span class="box" style="background:var(--holiday-bg)"></span>Holiday</span>
+      <span class="chip" style="color:var(--qc)"><span class="box" style="background:var(--qc)"></span>QC</span>
+      <span class="chip" style="color:var(--leave)"><span class="box" style="background:var(--leave)"></span>Leave</span>
+      <span class="chip" style="color:var(--muted)"><span class="box" style="background:var(--muted);opacity:0.5"></span>Holiday</span>
     </div>
     <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
   `;
