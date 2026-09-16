@@ -1,0 +1,47 @@
+name: Daily Grafana Refresh
+ 
+on:
+  schedule:
+    # 10:00 UTC = 6:00 AM US-Eastern (EDT) / 5:00 AM (EST).
+    # Runs after the previous US-ET day has fully closed out.
+    - cron: "0 10 * * *"
+  workflow_dispatch:  # allows manual runs from the Actions tab
+    inputs:
+      report_date:
+        description: "YYYY-MM-DD to fetch (leave blank for yesterday US-ET)"
+        required: false
+ 
+permissions:
+  contents: write
+ 
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+ 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+ 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+ 
+      - name: Fetch from Grafana
+        env:
+          GRAFANA_TOKEN: ${{ secrets.GRAFANA_TOKEN }}
+          REPORT_DATE: ${{ github.event.inputs.report_date }}
+        run: python fetch_grafana.py
+ 
+      - name: Commit updated data.json
+        run: |
+          git config user.name  "grafana-bot"
+          git config user.email "grafana-bot@users.noreply.github.com"
+          if [[ -n "$(git status --porcelain data.json)" ]]; then
+            git add data.json
+            git commit -m "Daily refresh $(date -u +%Y-%m-%d)"
+            git push
+          else
+            echo "No changes to commit."
+          fi
+ 
