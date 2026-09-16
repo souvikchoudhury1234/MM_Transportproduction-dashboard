@@ -18,8 +18,8 @@
   --alert:#e63946; --alert-bg:#fff0f2; --alert-text:#8b1a26;
   --good:#10b981; --good-bg:#dcfce7; --good-text:#065f46;
   --qc:#8e44ad; --qc-bg:#f5e6fa;
-  --leave:#7a869a; --leave-bg:#eef0f4;
-  --holiday-bg:#e8ebf0;
+  --leave:#b8860b; --leave-bg:#fff4c2;
+  --holiday:#1e6ab8; --holiday-bg:#d6eaff;
 }
 :root:not([data-theme="light"]){
   @media (prefers-color-scheme: dark){
@@ -30,7 +30,7 @@
     --c-fails-bg:#3f1616; --c-review-bg:#3c1128;
     --alert-bg:#3a1a20; --alert-text:#ffb0ba;
     --good-bg:#0d2f22; --good-text:#7ee3b8;
-    --qc-bg:#2a1c3a; --leave-bg:#1e2432; --holiday-bg:#1a1f2c;
+    --qc-bg:#2a1c3a; --leave:#f5c542; --leave-bg:#3d2f0a; --holiday:#5aa3f0; --holiday-bg:#0f2540;
   }
 }
 :root[data-theme="dark"]{
@@ -41,7 +41,7 @@
   --c-fails-bg:#3f1616; --c-review-bg:#3c1128;
   --alert-bg:#3a1a20; --alert-text:#ffb0ba;
   --good-bg:#0d2f22; --good-text:#7ee3b8;
-  --qc-bg:#2a1c3a; --leave-bg:#1e2432; --holiday-bg:#1a1f2c;
+  --qc-bg:#2a1c3a; --leave:#f5c542; --leave-bg:#3d2f0a; --holiday:#5aa3f0; --holiday-bg:#0f2540;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
@@ -179,7 +179,7 @@ td.alert-cell{background:var(--alert-bg) !important;color:var(--alert-text);
 td.good-cell{background:var(--good-bg) !important;color:var(--good-text);font-weight:700}
 td.qc-cell{background:var(--qc-bg) !important;color:var(--qc);font-size:11px;font-weight:700}
 td.l-cell{background:var(--leave-bg) !important;color:var(--leave);font-size:11px;font-weight:700}
-td.h-cell{background:var(--holiday-bg) !important;color:var(--muted);font-size:11px;font-weight:700}
+td.h-cell{background:var(--holiday-bg) !important;color:var(--holiday);font-size:11px;font-weight:700}
 td.rollup{font-weight:800;background:var(--panel);position:sticky;right:0;z-index:1}
 tbody tr:nth-child(even) td.rollup{background:var(--bg)}
 tbody tr:hover td.rollup{background:var(--c-cases-bg)}
@@ -468,8 +468,8 @@ function render(month){
       <span class="chip"><span class="box" style="background:var(--alert-bg);border:2px solid var(--alert)"></span>Alert: daily &lt; 8 or avg &lt; 10</span>
       <span class="chip"><span class="box" style="background:var(--good-bg);border:2px solid var(--good)"></span>Good: day ≥ 12 or avg ≥ 10</span>
       <span class="chip" style="color:var(--qc)"><span class="box" style="background:var(--qc)"></span>QC</span>
-      <span class="chip" style="color:var(--leave)"><span class="box" style="background:var(--leave)"></span>Leave</span>
-      <span class="chip" style="color:var(--muted)"><span class="box" style="background:var(--muted);opacity:0.5"></span>Holiday</span>
+      <span class="chip" style="color:var(--leave)"><span class="box" style="background:var(--leave)"></span>L = Leave</span>
+      <span class="chip" style="color:var(--holiday)"><span class="box" style="background:var(--holiday)"></span>H = Holiday</span>
     </div>
     <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
   `;
