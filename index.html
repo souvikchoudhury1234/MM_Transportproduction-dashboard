@@ -255,7 +255,7 @@ td.rollup.good-cell{background:var(--good-bg) !important;color:var(--good-text)}
     <div class="lock">🔐</div>
     <h2>Sign in to view report</h2>
     <p>Production Dashboard · Weekly refresh</p>
-    <input type="email" id="emailInp" placeholder="your.name@100ms.ai" autocomplete="email">
+    <input type="email" id="emailInp" placeholder="your.name@100ms.ai or .live" autocomplete="email">
     <button id="signInBtn">Sign in</button>
     <div class="err" id="gateErr"></div>
     <div class="whitelist">
@@ -284,13 +284,21 @@ td.rollup.good-cell{background:var(--good-bg) !important;color:var(--good-text)}
 <script>
 const VIEWERS = {
   "souvik.choudhury@100ms.ai": "Souvik",
+  "souvik.choudhury@100ms.live": "Souvik",
   "hosni@100ms.ai": "Hosni",
+  "hosni@100ms.live": "Hosni",
   "jeswanth.s@100ms.ai": "Jeswanth",
+  "jeswanth.s@100ms.live": "Jeswanth",
   "km.karthik@100ms.ai": "Karthik",
+  "km.karthik@100ms.live": "Karthik",
   "sudeesh@100ms.ai": "Sudeesh",
+  "sudeesh@100ms.live": "Sudeesh",
   "thakur.ravi@100ms.ai": "Ravi",
+  "thakur.ravi@100ms.live": "Ravi",
   "indranil.dey@100ms.ai": "Indranil",
-  "aatrey.ashish@100ms.ai": "Ashish"
+  "indranil.dey@100ms.live": "Indranil",
+  "aatrey.ashish@100ms.ai": "Ashish",
+  "aatrey.ashish@100ms.live": "Ashish"
 };
 
 // ---- Team structure (from Team_Structure.xlsx) ----
