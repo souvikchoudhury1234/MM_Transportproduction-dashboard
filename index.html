@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <title>Production Dashboard</title>
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
 :root{
   --bg:#f4f6fb; --panel:#fff; --ink:#1a2233; --muted:#6b7480;
@@ -133,19 +134,77 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .tab.tab-compare.active{background:linear-gradient(135deg,#10b981,#06b6d4);
   border-color:transparent;color:#fff;
   box-shadow:0 4px 12px rgba(16,185,129,0.4)}
+.tab.tab-trends{border-color:var(--c-active);color:var(--c-active)}
+.tab.tab-trends:hover{border-color:var(--c-active);color:var(--roll)}
+.tab.tab-trends.active{background:linear-gradient(135deg,#8b5cf6,#ec4899);
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 12px rgba(139,92,246,0.4)}
+.chart-panel{background:var(--panel);border-radius:12px;padding:18px 20px;
+  margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.chart-panel h3{margin:0 0 12px;font-size:14px;font-weight:700;
+  color:var(--muted);letter-spacing:0.03em;text-transform:uppercase}
+.chart-wrap{position:relative;height:320px}
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr}}
 .tab .dot{display:inline-block;margin-left:8px;background:var(--alert);color:#fff;
   font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;min-width:20px;
   text-align:center;box-shadow:0 2px 6px rgba(230,57,70,0.4)}
 .tab.active .dot{background:#fff;color:var(--alert)}
 
-.subfilter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-.subfilter .chip{padding:6px 12px;border:1.5px solid var(--line);
-  background:var(--panel);border-radius:16px;font-size:12px;
-  font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;
-  font-family:inherit}
-.subfilter .chip:hover{border-color:var(--grad-1);color:var(--ink)}
-.subfilter .chip.on{background:var(--grad-1);color:#fff;border-color:transparent}
-.subfilter .chip .num{opacity:0.85;margin-left:5px;font-weight:800}
+.subfilter{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.subfilter label{font-size:12px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.05em}
+.subfilter select{padding:8px 14px;border:2px solid var(--line);
+  background:var(--panel);color:var(--ink);border-radius:8px;
+  font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;outline:none;
+  transition:border 0.15s;min-width:180px}
+.subfilter select:hover{border-color:var(--grad-1)}
+.subfilter select:focus{border-color:var(--grad-1)}
+.subfilter select option{background:var(--panel);color:var(--ink)}
+.subfilter .count-note{font-size:12px;color:var(--muted);font-weight:600}
+
+tr.lead-header td{background:linear-gradient(90deg,var(--grad-1),var(--grad-2)) !important;
+  color:#fff !important;font-weight:800;text-align:left !important;
+  padding:10px 14px !important;font-size:12px;letter-spacing:0.05em;
+  text-transform:uppercase;position:sticky;left:0;z-index:1}
+tr.lead-header td .cnt{opacity:0.8;font-weight:600;margin-left:8px;font-size:11px}
+tr.lead-header:hover td{background:linear-gradient(90deg,var(--grad-1),var(--grad-2)) !important}
+
+.footer-legend{background:var(--panel);border-radius:10px;padding:12px 16px;
+  margin-top:16px;font-size:12px;color:var(--muted);
+  box-shadow:0 2px 8px rgba(0,0,0,0.04);line-height:1.7}
+.footer-legend b{color:var(--ink);display:inline-block;min-width:110px}
+.footer-legend .glossary-title{font-size:11px;font-weight:800;
+  letter-spacing:0.08em;text-transform:uppercase;color:var(--grad-1);
+  display:block;margin-bottom:8px}
+
+.attn-icon{display:inline-block;margin-right:6px;font-size:14px;
+  animation:blink 1.8s ease-in-out infinite;vertical-align:middle}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.45}}
+.emp-clickable{cursor:pointer;user-select:none}
+.emp-clickable:hover{color:var(--alert)}
+.emp-clickable::after{content:" ▸";color:var(--muted);font-size:10px;transition:transform 0.15s}
+.emp-clickable.open::after{content:" ▾";color:var(--alert)}
+tr.attn-details td{background:var(--alert-bg) !important;
+  padding:14px 18px !important;border-bottom:2px solid var(--alert)}
+tr.attn-details .attn-title{font-weight:800;color:var(--alert-text);
+  font-size:13px;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+tr.attn-details .attn-body{font-size:12.5px;color:var(--ink);line-height:1.7}
+tr.attn-details .attn-body b{color:var(--alert-text);font-variant-numeric:tabular-nums}
+
+.compare-section{margin-top:24px;background:var(--panel);border-radius:12px;
+  padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.compare-section h3{margin:0 0 12px;font-size:14px;font-weight:800;
+  color:var(--ink);letter-spacing:-0.01em;
+  display:flex;align-items:center;gap:8px}
+.compare-section .hint{font-size:12px;color:var(--muted);
+  font-weight:500;margin-left:auto}
+.compare-section .cmp-summary{display:flex;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.compare-section .cmp-summary .box{padding:10px 14px;border-radius:8px;
+  background:var(--bg);flex:1;min-width:140px}
+.compare-section .cmp-summary .box .k{font-size:11px;color:var(--muted);
+  text-transform:uppercase;letter-spacing:0.05em;font-weight:700;margin-bottom:2px}
+.compare-section .cmp-summary .box .v{font-size:18px;font-weight:800}
 
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:12px;margin-bottom:16px}
@@ -347,6 +406,7 @@ const TEAM_STRUCTURE = {
   // Human Handoff Audit team (moved starting Aug 2026)
   "abu talha":{cat:"hha",lead:"-",note:"Moved to HHA team from Aug 2026"},
   "kelam siva sankar":{cat:"hha",lead:"-",note:"Moved to HHA team from Aug 2026"},
+  "saiyad noorulla":{cat:"hha",lead:"-",note:"Human Handoff Audit team"},
   // PA team (moved from MM permanently on 22-Aug-2026)
   "jennifer":{cat:"pa",lead:"-",note:"Moved from MM to PA team on 22-Aug-2026"},
   "jennifer sb":{cat:"pa",lead:"-",note:"Moved from MM to PA team on 22-Aug-2026"},
@@ -478,25 +538,29 @@ function catPill(cat, note){
 }
 
 function renderTabs(active){
-  const attCount = attentionRows().length;
   const monthTabs = MONTHS.map(m => {
     const a = countAlerts(m);
     return `<button class="tab ${m===active?'active':''}" data-m="${esc(m)}">${esc(m.replace(" 2026",""))}${a?`<span class="dot">${a}</span>`:""}</button>`;
   }).join("");
-  const attTab = `<button class="tab tab-attention ${active==='__attention'?'active':''}" data-m="__attention">🚨 Needs Attention${attCount?`<span class="dot">${attCount}</span>`:""}</button>`;
-  const cmpTab = `<button class="tab tab-compare ${active==='__compare'?'active':''}" data-m="__compare">📈 Comparison</button>`;
-  $("tabs").innerHTML = attTab + cmpTab + monthTabs;
+  const trTab = `<button class="tab tab-trends ${active==='__trends'?'active':''}" data-m="__trends">📊 Trends</button>`;
+  $("tabs").innerHTML = monthTabs + trTab;
   document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => render(t.dataset.m)));
 }
 
 function renderSubfilter(emps, current){
   const counts = {all: emps.length};
   CAT_ORDER.forEach(c => counts[c] = emps.filter(e => e.cat === c).length);
-  const btn = (id, label) =>
-    `<button class="chip ${current===id?'on':''}" data-cat="${id}">${label}<span class="num">${counts[id]||0}</span></button>`;
-  const parts = [btn("all", "All")];
-  CAT_ORDER.forEach(c => { if (counts[c] > 0) parts.push(btn(c, CAT_LABEL[c])); });
-  return `<div class="subfilter">${parts.join("")}</div>`;
+  const opt = (id, label) => {
+    const cnt = counts[id] || 0;
+    return `<option value="${id}" ${current===id?'selected':''}>${label} (${cnt})</option>`;
+  };
+  const opts = [opt("all", "All Categories")];
+  CAT_ORDER.forEach(c => { if (counts[c] > 0) opts.push(opt(c, CAT_LABEL[c])); });
+  return `<div class="subfilter">
+    <label for="catSel">Filter by:</label>
+    <select id="catSel">${opts.join("")}</select>
+    <span class="count-note">Showing <b>${counts[current]||0}</b> of ${counts.all} agents</span>
+  </div>`;
 }
 
 function renderCatBand(emps){
@@ -522,8 +586,8 @@ function renderCatBand(emps){
 
 function render(month){
   STATE.view = month;
-  if (month === "__attention"){ renderAttention(); return; }
-  if (month === "__compare"){ renderCompare(); return; }
+  if (month !== "__trends") destroyCharts();
+  if (month === "__trends"){ renderTrends(); return; }
   STATE.catFilter = STATE.catFilter || "all";
   renderTabs(month);
   $("dataNote").classList.add("hidden");
@@ -560,34 +624,73 @@ function render(month){
     <th class="rollup">Total</th>
     <th class="rollup">Avg</th>
   </tr>`;
+  // Sort within group: alert-first, then avg desc
   emps.sort((a,b) => {
     const aBad = a.s.avgAlert || a.s.alertDays>0 ? 1 : 0;
     const bBad = b.s.avgAlert || b.s.alertDays>0 ? 1 : 0;
     if (aBad !== bBad) return bBad - aBad;
     return b.s.avg - a.s.avg;
   });
-  const body = emps.map(e => {
-    const cells = days.map(d => {
-      const c = e.days[d.d];
-      if (!c) return `<td style="color:var(--muted)">·</td>`;
-      if (c.s === "W") {
-        const cls = c.v < ALERT_DAY ? "alert-cell" : (c.v >= 12 ? "good-cell" : "");
-        return `<td class="${cls}">${c.v % 1 === 0 ? c.v : c.v.toFixed(1)}</td>`;
+  // Group by team lead
+  const LEAD_ORDER = ["Jeswanth","Karthik","Sudeesh","-"];
+  const LEAD_LABEL = {"Jeswanth":"👤 Jeswanth's Team","Karthik":"👤 Karthik's Team","Sudeesh":"👤 Sudeesh's Team","-":"👥 Others (HHA / PA / Unassigned)"};
+  const groups = {};
+  LEAD_ORDER.forEach(L => groups[L] = []);
+  emps.forEach(e => { const L = groups[e.lead] !== undefined ? e.lead : "-"; groups[L].push(e); });
+
+  const colspan = days.length + 3; // emp + days + total + avg
+  const bodyParts = [];
+  LEAD_ORDER.forEach(L => {
+    const list = groups[L];
+    if (!list.length) return;
+    bodyParts.push(`<tr class="lead-header"><td colspan="${colspan}">${esc(LEAD_LABEL[L])}<span class="cnt">${list.length} agent${list.length!==1?'s':''}</span></td></tr>`);
+    list.forEach(e => {
+      const cells = days.map(d => {
+        const c = e.days[d.d];
+        if (!c) return `<td style="color:var(--muted)">·</td>`;
+        if (c.s === "W") {
+          const cls = c.v < ALERT_DAY ? "alert-cell" : (c.v >= 12 ? "good-cell" : "");
+          return `<td class="${cls}">${c.v % 1 === 0 ? c.v : c.v.toFixed(1)}</td>`;
+        }
+        if (c.s === "QC") return `<td class="qc-cell">QC</td>`;
+        if (c.s === "L")  return `<td class="l-cell">L</td>`;
+        if (c.s === "H")  return `<td class="h-cell">H</td>`;
+        return `<td style="color:var(--muted)">${esc(c.s)}</td>`;
+      }).join("");
+      const avgCls = e.s.worked === 0 ? "" : (e.s.avgAlert ? "alert-cell" : "good-cell");
+      const avgTxt = e.s.worked ? e.s.avg.toFixed(2) : "—";
+      // Attention flag: from September onward, avg < 8 (attention threshold)
+      const startIdx = MONTHS.indexOf(ATTENTION_MONTHS_FROM);
+      const currIdx = MONTHS.indexOf(month);
+      const needsAttn = currIdx >= startIdx && e.s.worked > 0 && e.s.avg < ATTENTION_AVG_THRESHOLD;
+      const attnIcon = needsAttn ? `<span class="attn-icon" title="Needs immediate attention">🚨</span>` : "";
+      const nameClass = needsAttn ? "emp-clickable" : "";
+      const empKey = `${month}::${e.name}`.replace(/[^a-zA-Z0-9]/g,"_");
+      bodyParts.push(`<tr>
+        <td class="emp">${attnIcon}<span class="${nameClass}" data-attn-key="${empKey}">${esc(e.name)}</span>${catPill(e.cat, e.note)}</td>
+        ${cells}
+        <td class="rollup">${e.s.sum}</td>
+        <td class="rollup ${avgCls}">${avgTxt}</td>
+      </tr>`);
+      if (needsAttn) {
+        const dropped = e.s.alertDays;
+        const totalWorked = e.s.worked;
+        const droppedPct = totalWorked > 0 ? (dropped/totalWorked*100).toFixed(0) : 0;
+        bodyParts.push(`<tr class="attn-details hidden" id="attn_${empKey}">
+          <td colspan="${colspan}">
+            <div class="attn-title">🚨 Needs Immediate Attention</div>
+            <div class="attn-body">
+              Monthly average: <b>${e.s.avg.toFixed(2)}</b> cases/day — below the attention threshold of <b>${ATTENTION_AVG_THRESHOLD}</b>.<br>
+              Days below 8: <b>${dropped}</b> out of <b>${totalWorked}</b> worked days (<b>${droppedPct}%</b>).<br>
+              Leave days: <b>${e.s.leaves}</b> · QC days: <b>${e.s.qc}</b> · Total cases: <b>${e.s.sum}</b>.<br>
+              Team: <b>${esc(CAT_LABEL[e.cat])}</b>${e.lead!=='-'?` under <b>${esc(e.lead)}</b>`:""}.
+            </div>
+          </td>
+        </tr>`);
       }
-      if (c.s === "QC") return `<td class="qc-cell">QC</td>`;
-      if (c.s === "L")  return `<td class="l-cell">L</td>`;
-      if (c.s === "H")  return `<td class="h-cell">H</td>`;
-      return `<td style="color:var(--muted)">${esc(c.s)}</td>`;
-    }).join("");
-    const avgCls = e.s.worked === 0 ? "" : (e.s.avgAlert ? "alert-cell" : "good-cell");
-    const avgTxt = e.s.worked ? e.s.avg.toFixed(2) : "—";
-    return `<tr>
-      <td class="emp">${esc(e.name)}${catPill(e.cat, e.note)}${e.lead!=='-'?`<span class="lead-tag">${esc(e.lead)}</span>`:""}</td>
-      ${cells}
-      <td class="rollup">${e.s.sum}</td>
-      <td class="rollup ${avgCls}">${avgTxt}</td>
-    </tr>`;
-  }).join("");
+    });
+  });
+  const body = bodyParts.join("");
   $("content").innerHTML = `
     ${catBand}
     ${subfilter}
@@ -600,12 +703,110 @@ function render(month){
       <span class="chip" style="color:var(--holiday)"><span class="box" style="background:var(--holiday)"></span>H = Holiday</span>
     </div>
     <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+    ${buildCompareSection(month, allEmps)}
+    <div class="footer-legend">
+      <span class="glossary-title">Abbreviations</span>
+      <b>MM Main</b> — Major Medical Benefits Verification agent<br>
+      <b>MM Rollover</b> — Major Medical rollover / overflow agent<br>
+      <b>Transport Main</b> — Main Transportation Benefits Verification agent<br>
+      <b>Rollover</b> — Shared rollover agent (covers both MM and Transportation)<br>
+      <b>HHA</b> — Human Handoff Audit team<br>
+      <b>PA Team</b> — Prior Authorization team<br>
+      <b>L / H / QC</b> — Leave · Holiday · Quality Check<br>
+      <b>🚨 icon</b> — Agent needs attention (monthly avg &lt; ${ATTENTION_AVG_THRESHOLD}). Click the name to see details.
+    </div>
   `;
-  // subfilter click wiring
-  document.querySelectorAll(".subfilter .chip").forEach(b => b.addEventListener("click", () => {
-    STATE.catFilter = b.dataset.cat;
-    render(month);
+  // dropdown wiring
+  const sel = document.getElementById("catSel");
+  if (sel) sel.addEventListener("change", () => { STATE.catFilter = sel.value; render(month); });
+  // clickable attention rows
+  document.querySelectorAll(".emp-clickable").forEach(el => el.addEventListener("click", () => {
+    const key = el.dataset.attnKey;
+    const row = document.getElementById("attn_" + key);
+    if (!row) return;
+    const isOpen = !row.classList.contains("hidden");
+    row.classList.toggle("hidden");
+    el.classList.toggle("open", !isOpen);
   }));
+}
+
+function buildCompareSection(month, allEmps){
+  const currIdx = MONTHS.indexOf(month);
+  // find previous month WITH data
+  let prevMonth = null;
+  for (let i = currIdx - 1; i >= 0; i--){
+    if (DATA[MONTHS[i]].employees.some(e => Object.values(e.days).some(x => x.s === "W"))){
+      prevMonth = MONTHS[i]; break;
+    }
+  }
+  if (!prevMonth) return "";
+  // Build agent map for previous month
+  const prevBy = new Map();
+  DATA[prevMonth].employees.forEach(e => prevBy.set(e.name, summarize(e)));
+  // Rows for each agent in current month
+  const rows = allEmps.map(e => {
+    const c = summarize(e);
+    const p = prevBy.get(e.name);
+    const pAvg = p ? p.avg : 0;
+    const cAvg = c.avg;
+    const change = pAvg > 0 ? ((cAvg - pAvg) / pAvg) * 100 : (cAvg > 0 ? 100 : 0);
+    return {name:e.name, cat:e.cat, note:e.note,
+      pSum: p ? p.sum : 0, pAvg,
+      cSum: c.sum, cAvg,
+      change, hasPrev: !!p && p.worked > 0, hasCurr: c.worked > 0};
+  }).filter(r => r.hasPrev || r.hasCurr);
+  rows.sort((a,b) => a.change - b.change); // worst first
+
+  // Team totals
+  const pTot = rows.reduce((a,r) => a + r.pSum, 0);
+  const cTot = rows.reduce((a,r) => a + r.cSum, 0);
+  const teamChange = pTot > 0 ? ((cTot - pTot) / pTot) * 100 : 0;
+  const teamCls = teamChange > 0.5 ? "change-up" : teamChange < -0.5 ? "change-down" : "change-flat";
+  const teamArrow = teamChange > 0.5 ? "▲" : teamChange < -0.5 ? "▼" : "▬";
+
+  const head = `<tr>
+    <th class="emp">Agent</th>
+    <th>${esc(prevMonth.replace(" 2026",""))} Total</th>
+    <th>${esc(prevMonth.replace(" 2026",""))} Avg</th>
+    <th>${esc(month.replace(" 2026",""))} Total</th>
+    <th>${esc(month.replace(" 2026",""))} Avg</th>
+    <th class="rollup">Change</th>
+  </tr>`;
+  const body = rows.map(r => {
+    let changeCell;
+    if (!r.hasPrev && r.hasCurr){
+      changeCell = `<td class="rollup change-up"><span class="arrow">▲</span>NEW</td>`;
+    } else if (r.hasPrev && !r.hasCurr){
+      changeCell = `<td class="rollup change-down"><span class="arrow">▼</span>GONE</td>`;
+    } else {
+      const arrow = r.change > 0.5 ? "▲" : r.change < -0.5 ? "▼" : "▬";
+      const cls = r.change > 0.5 ? "change-up" : r.change < -0.5 ? "change-down" : "change-flat";
+      changeCell = `<td class="rollup ${cls}"><span class="arrow">${arrow}</span>${Math.abs(r.change).toFixed(1)}%</td>`;
+    }
+    const pAvgCell = r.hasPrev ? r.pAvg.toFixed(2) : "—";
+    const cAvgCell = r.hasCurr ? r.cAvg.toFixed(2) : "—";
+    return `<tr>
+      <td class="emp">${esc(r.name)}${catPill(r.cat, r.note)}</td>
+      <td>${r.hasPrev ? r.pSum : "—"}</td>
+      <td>${pAvgCell}</td>
+      <td>${r.hasCurr ? r.cSum : "—"}</td>
+      <td>${cAvgCell}</td>
+      ${changeCell}
+    </tr>`;
+  }).join("");
+
+  return `
+    <div class="compare-section">
+      <h3>📈 Comparison: ${esc(prevMonth.replace(" 2026",""))} → ${esc(month.replace(" 2026",""))}
+        <span class="hint">sorted worst decline first</span>
+      </h3>
+      <div class="cmp-summary">
+        <div class="box"><div class="k">${esc(prevMonth.replace(" 2026",""))} Total</div><div class="v">${pTot.toLocaleString()}</div></div>
+        <div class="box"><div class="k">${esc(month.replace(" 2026",""))} Total</div><div class="v">${cTot.toLocaleString()}</div></div>
+        <div class="box"><div class="k">Team Change</div><div class="v ${teamCls}"><span class="arrow">${teamArrow}</span>${Math.abs(teamChange).toFixed(1)}%</div></div>
+      </div>
+      <div class="tbl-wrap" style="max-height:400px"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+    </div>`;
 }
 
 function renderAttention(){
@@ -648,6 +849,161 @@ function renderAttention(){
     <div class="data-note"><b>Action needed:</b> Agents with monthly average &lt; ${ATTENTION_AVG_THRESHOLD} cases/day (from ${esc(ATTENTION_MONTHS_FROM)} onward). Sorted worst first.</div>
     <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
   `;
+}
+
+let CHARTS = {};
+function destroyCharts(){ Object.values(CHARTS).forEach(c => { try { c.destroy(); } catch(e){} }); CHARTS = {}; }
+
+function renderTrends(){
+  renderTabs("__trends");
+  $("dataNote").classList.add("hidden");
+  destroyCharts();
+
+  // Build monthly aggregates
+  const monthsWithData = MONTHS.filter(m => DATA[m].employees.some(e => Object.values(e.days).some(x => x.s === "W")));
+  if (!monthsWithData.length){
+    $("content").innerHTML = `<div class="tbl-wrap"><div class="empty">No production data yet.</div></div>`;
+    return;
+  }
+  const monthLabels = monthsWithData.map(m => m.replace(" 2026",""));
+
+  // Totals & averages per month
+  const totals = [], averages = [], activeCounts = [];
+  const perCat = {}; // category -> array of totals per month
+  CAT_ORDER.forEach(c => perCat[c] = new Array(monthsWithData.length).fill(0));
+  monthsWithData.forEach((m, idx) => {
+    let sum=0, worked=0, active=0;
+    DATA[m].employees.forEach(e => {
+      const s = summarize(e);
+      sum += s.sum; worked += s.worked; if (s.worked>0) active++;
+      if (perCat[e.cat]) perCat[e.cat][idx] += s.sum;
+    });
+    totals.push(sum);
+    averages.push(worked ? sum/worked : 0);
+    activeCounts.push(active);
+  });
+
+  // Month-over-month delta
+  const growth = monthsWithData.map((m, i) => {
+    if (i === 0) return null;
+    const p = totals[i-1], c = totals[i];
+    return p > 0 ? ((c - p) / p) * 100 : 0;
+  });
+
+  // Header KPIs: latest month vs previous
+  const latestIdx = monthsWithData.length - 1;
+  const latestTotal = totals[latestIdx];
+  const latestAvg = averages[latestIdx];
+  const latestGrowth = growth[latestIdx];
+  const growthCls = latestGrowth == null ? "change-flat" : latestGrowth > 0.5 ? "change-up" : latestGrowth < -0.5 ? "change-down" : "change-flat";
+  const growthArrow = latestGrowth == null ? "" : latestGrowth > 0.5 ? "▲" : latestGrowth < -0.5 ? "▼" : "▬";
+  const growthText = latestGrowth == null ? "First month" : `${growthArrow} ${Math.abs(latestGrowth).toFixed(1)}%`;
+
+  const kpis = `
+    <div class="summary">
+      <div class="stat c-cases"><div class="lbl">📅 Latest Month</div><div class="val" style="font-size:16px">${esc(monthLabels[latestIdx])}</div></div>
+      <div class="stat c-avg"><div class="lbl">📋 Total Cases</div><div class="val">${latestTotal.toLocaleString()}</div></div>
+      <div class="stat c-active"><div class="lbl">📊 Team Avg</div><div class="val">${latestAvg.toFixed(2)}</div></div>
+      <div class="stat ${latestGrowth != null && latestGrowth < 0 ? 'alert' : 'c-active'}">
+        <div class="lbl">📈 vs Previous</div><div class="val ${growthCls}" style="font-size:18px">${growthText}</div>
+      </div>
+    </div>`;
+
+  $("content").innerHTML = kpis + `
+    <div class="chart-panel">
+      <h3>📊 Total Cases per Month</h3>
+      <div class="chart-wrap"><canvas id="chartTotals"></canvas></div>
+    </div>
+    <div class="chart-grid">
+      <div class="chart-panel">
+        <h3>📈 Team Daily Average per Month</h3>
+        <div class="chart-wrap"><canvas id="chartAvg"></canvas></div>
+      </div>
+      <div class="chart-panel">
+        <h3>👥 Active Agents per Month</h3>
+        <div class="chart-wrap"><canvas id="chartActive"></canvas></div>
+      </div>
+    </div>
+    <div class="chart-panel">
+      <h3>🎨 Production by Team Category</h3>
+      <div class="chart-wrap"><canvas id="chartCategory"></canvas></div>
+    </div>
+    <div class="data-note"><b>How to read:</b> Trend charts show month-over-month production. Category chart stacks contribution by team (MM Main, MM Rollover, Transport Main, Rollover, HHA, PA). Numbers refresh weekly.</div>
+  `;
+
+  const ink = getComputedStyle(document.documentElement).getPropertyValue("--ink").trim();
+  const muted = getComputedStyle(document.documentElement).getPropertyValue("--muted").trim();
+  const line = getComputedStyle(document.documentElement).getPropertyValue("--line").trim();
+  const commonOpts = {
+    responsive:true, maintainAspectRatio:false,
+    plugins:{legend:{labels:{color:ink,font:{size:11,weight:"600"}}},tooltip:{padding:10}},
+    scales:{
+      x:{ticks:{color:muted,font:{size:11}},grid:{color:line}},
+      y:{ticks:{color:muted,font:{size:11}},grid:{color:line},beginAtZero:true}
+    }
+  };
+
+  // Totals bar chart
+  CHARTS.totals = new Chart(document.getElementById("chartTotals"), {
+    type:"bar",
+    data:{labels:monthLabels, datasets:[{
+      label:"Total Cases", data:totals,
+      backgroundColor:"rgba(67,97,238,0.75)",
+      borderColor:"#4361ee", borderWidth:2, borderRadius:8
+    }]},
+    options:commonOpts
+  });
+
+  // Avg line chart
+  CHARTS.avg = new Chart(document.getElementById("chartAvg"), {
+    type:"line",
+    data:{labels:monthLabels, datasets:[{
+      label:"Team Daily Avg", data:averages.map(v => +v.toFixed(2)),
+      borderColor:"#06b6d4", backgroundColor:"rgba(6,182,212,0.15)",
+      tension:0.35, pointRadius:5, pointBackgroundColor:"#06b6d4",
+      pointBorderColor:"#fff", pointBorderWidth:2, fill:true, borderWidth:3
+    }]},
+    options:{...commonOpts, plugins:{...commonOpts.plugins,
+      annotation:{}, legend:commonOpts.plugins.legend}}
+  });
+
+  // Active agents chart
+  CHARTS.active = new Chart(document.getElementById("chartActive"), {
+    type:"bar",
+    data:{labels:monthLabels, datasets:[{
+      label:"Active Agents", data:activeCounts,
+      backgroundColor:"rgba(139,92,246,0.75)",
+      borderColor:"#8b5cf6", borderWidth:2, borderRadius:8
+    }]},
+    options:commonOpts
+  });
+
+  // Per-category stacked chart
+  const catColors = {
+    "mm-main":"#4361ee","mm-roll":"#06b6d4","tr-main":"#f59e0b",
+    "roll":"#8b5cf6","hha":"#0d9488","pa":"#db2777","unassigned":"#9aa5b8"
+  };
+  const datasets = CAT_ORDER
+    .filter(c => perCat[c].some(v => v > 0))
+    .map(c => ({
+      label: CAT_LABEL[c],
+      data: perCat[c],
+      backgroundColor: catColors[c] + "cc",
+      borderColor: catColors[c],
+      borderWidth: 1.5,
+      borderRadius: 4,
+      stack: "s1"
+    }));
+  CHARTS.cat = new Chart(document.getElementById("chartCategory"), {
+    type:"bar",
+    data:{labels:monthLabels, datasets},
+    options:{...commonOpts,
+      scales:{
+        x:{...commonOpts.scales.x, stacked:true},
+        y:{...commonOpts.scales.y, stacked:true}
+      }
+    }
+  });
 }
 
 function renderCompare(){
