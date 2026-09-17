@@ -12,36 +12,51 @@
   --c-cases:#4361ee; --c-cases-bg:#e7ecff;
   --c-avg:#06b6d4; --c-avg-bg:#dff8fc;
   --c-active:#8b5cf6; --c-active-bg:#efe7ff;
-  --c-talk:#f59e0b; --c-talk-bg:#fff2d6;
   --c-fails:#ef4444; --c-fails-bg:#ffe1e1;
-  --c-review:#ec4899; --c-review-bg:#ffe0f0;
   --alert:#e63946; --alert-bg:#fff0f2; --alert-text:#8b1a26;
   --good:#10b981; --good-bg:#dcfce7; --good-text:#065f46;
   --qc:#8e44ad; --qc-bg:#f5e6fa;
   --leave:#b8860b; --leave-bg:#fff4c2;
   --holiday:#1e6ab8; --holiday-bg:#d6eaff;
+  --mm-main:#4361ee; --mm-main-bg:#e7ecff;
+  --mm-roll:#06b6d4; --mm-roll-bg:#dff8fc;
+  --tr-main:#f59e0b; --tr-main-bg:#fff2d6;
+  --roll:#8b5cf6; --roll-bg:#efe7ff;
+  --hha:#0d9488; --hha-bg:#ccfbf1;
+  --pa:#db2777; --pa-bg:#fce7f3;
+  --unassigned:#9aa5b8; --unassigned-bg:#eef0f4;
 }
 :root:not([data-theme="light"]){
   @media (prefers-color-scheme: dark){
     --bg:#0f1420; --panel:#1a2033; --ink:#e6ebf5; --muted:#9aa5b8;
     --line:#2a3247;
     --c-cases-bg:#1b234a; --c-avg-bg:#0e3a44;
-    --c-active-bg:#2a1c4a; --c-talk-bg:#3d2a10;
-    --c-fails-bg:#3f1616; --c-review-bg:#3c1128;
+    --c-active-bg:#2a1c4a; --c-fails-bg:#3f1616;
     --alert-bg:#3a1a20; --alert-text:#ffb0ba;
     --good-bg:#0d2f22; --good-text:#7ee3b8;
-    --qc-bg:#2a1c3a; --leave:#f5c542; --leave-bg:#3d2f0a; --holiday:#5aa3f0; --holiday-bg:#0f2540;
+    --qc-bg:#2a1c3a;
+    --leave:#f5c542; --leave-bg:#3d2f0a;
+    --holiday:#5aa3f0; --holiday-bg:#0f2540;
+    --mm-main-bg:#1b234a; --mm-roll-bg:#0e3a44;
+    --tr-main-bg:#3d2a10; --roll-bg:#2a1c4a;
+    --hha-bg:#062e27; --pa-bg:#3a1128;
+    --unassigned-bg:#252c3d;
   }
 }
 :root[data-theme="dark"]{
   --bg:#0f1420; --panel:#1a2033; --ink:#e6ebf5; --muted:#9aa5b8;
   --line:#2a3247;
   --c-cases-bg:#1b234a; --c-avg-bg:#0e3a44;
-  --c-active-bg:#2a1c4a; --c-talk-bg:#3d2a10;
-  --c-fails-bg:#3f1616; --c-review-bg:#3c1128;
+  --c-active-bg:#2a1c4a; --c-fails-bg:#3f1616;
   --alert-bg:#3a1a20; --alert-text:#ffb0ba;
   --good-bg:#0d2f22; --good-text:#7ee3b8;
-  --qc-bg:#2a1c3a; --leave:#f5c542; --leave-bg:#3d2f0a; --holiday:#5aa3f0; --holiday-bg:#0f2540;
+  --qc-bg:#2a1c3a;
+  --leave:#f5c542; --leave-bg:#3d2f0a;
+  --holiday:#5aa3f0; --holiday-bg:#0f2540;
+  --mm-main-bg:#1b234a; --mm-roll-bg:#0e3a44;
+  --tr-main-bg:#3d2a10; --roll-bg:#2a1c4a;
+  --hha-bg:#062e27; --pa-bg:#3a1128;
+  --unassigned-bg:#252c3d;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
@@ -92,12 +107,12 @@ body{margin:0;background:var(--bg);color:var(--ink);
   cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.5)}
 .who a:hover{color:#fff;border-bottom-style:solid}
 
-.data-note{background:linear-gradient(135deg,var(--c-talk-bg),var(--c-review-bg));
+.data-note{background:linear-gradient(135deg,var(--c-avg-bg),var(--c-cases-bg));
   border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:12px;
-  color:var(--ink);border-left:4px solid var(--c-talk)}
-.data-note b{color:var(--c-fails)}
+  color:var(--ink);border-left:4px solid var(--c-avg)}
+.data-note b{color:var(--c-cases)}
 
-.tabs{display:flex;gap:6px;margin-bottom:20px;
+.tabs{display:flex;gap:6px;margin-bottom:16px;
   overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px}
 .tab{padding:10px 20px;background:var(--panel);border:2px solid var(--line);
   border-radius:10px;cursor:pointer;
@@ -113,10 +128,24 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .tab.tab-attention.active{background:linear-gradient(135deg,#e63946,#f4a261);
   border-color:transparent;color:#fff;
   box-shadow:0 4px 12px rgba(230,57,70,0.4)}
+.tab.tab-compare{border-color:var(--good);color:var(--good)}
+.tab.tab-compare:hover{border-color:var(--good);color:var(--good-text)}
+.tab.tab-compare.active{background:linear-gradient(135deg,#10b981,#06b6d4);
+  border-color:transparent;color:#fff;
+  box-shadow:0 4px 12px rgba(16,185,129,0.4)}
 .tab .dot{display:inline-block;margin-left:8px;background:var(--alert);color:#fff;
   font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px;min-width:20px;
   text-align:center;box-shadow:0 2px 6px rgba(230,57,70,0.4)}
 .tab.active .dot{background:#fff;color:var(--alert)}
+
+.subfilter{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.subfilter .chip{padding:6px 12px;border:1.5px solid var(--line);
+  background:var(--panel);border-radius:16px;font-size:12px;
+  font-weight:600;color:var(--muted);cursor:pointer;transition:all 0.15s;
+  font-family:inherit}
+.subfilter .chip:hover{border-color:var(--grad-1);color:var(--ink)}
+.subfilter .chip.on{background:var(--grad-1);color:#fff;border-color:transparent}
+.subfilter .chip .num{opacity:0.85;margin-left:5px;font-weight:800}
 
 .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
   gap:12px;margin-bottom:16px}
@@ -127,9 +156,7 @@ body{margin:0;background:var(--bg);color:var(--ink);
 .stat.c-cases{border-left-color:var(--c-cases);background:linear-gradient(135deg,var(--panel) 60%,var(--c-cases-bg))}
 .stat.c-avg{border-left-color:var(--c-avg);background:linear-gradient(135deg,var(--panel) 60%,var(--c-avg-bg))}
 .stat.c-active{border-left-color:var(--c-active);background:linear-gradient(135deg,var(--panel) 60%,var(--c-active-bg))}
-.stat.c-talk{border-left-color:var(--c-talk);background:linear-gradient(135deg,var(--panel) 60%,var(--c-talk-bg))}
 .stat.c-fails{border-left-color:var(--c-fails);background:linear-gradient(135deg,var(--panel) 60%,var(--c-fails-bg))}
-.stat.c-review{border-left-color:var(--c-review);background:linear-gradient(135deg,var(--panel) 60%,var(--c-review-bg))}
 .stat.alert{border-left-color:var(--alert);
   background:linear-gradient(135deg,var(--panel) 40%,var(--alert-bg));
   animation:pulse 2s ease-in-out infinite}
@@ -157,22 +184,32 @@ thead th{background:linear-gradient(135deg,var(--grad-1),var(--grad-2));
   color:#fff;position:sticky;top:0;z-index:2;
   padding:11px 8px;text-align:center;font-weight:700;font-size:11px;
   letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap}
-th.emp{text-align:left;left:0;z-index:3;min-width:200px}
+th.emp{text-align:left;left:0;z-index:3;min-width:220px}
 th .wd{font-weight:400;font-size:10px;opacity:0.85;text-transform:none;letter-spacing:0}
 th.rollup{background:linear-gradient(135deg,var(--grad-2),var(--grad-1));
   position:sticky;right:0;z-index:2}
 td{padding:8px;border-bottom:1px solid var(--line);text-align:center;
   font-variant-numeric:tabular-nums;white-space:nowrap}
 td.emp{text-align:left;font-weight:700;position:sticky;left:0;
-  background:var(--panel);z-index:1;color:var(--ink)}
+  background:var(--panel);z-index:1;color:var(--ink);min-width:220px}
 tbody tr:nth-child(even) td{background:var(--bg)}
 tbody tr:nth-child(even) td.emp{background:var(--bg)}
 tbody tr:hover td{background:var(--c-cases-bg)}
 tbody tr:hover td.emp{background:var(--c-cases-bg)}
-.team-pill{display:inline-block;font-size:10px;padding:2px 8px;border-radius:10px;
-  margin-left:6px;font-weight:700;letter-spacing:0.03em;color:#fff;
-  background:linear-gradient(135deg,var(--c-cases),var(--c-avg))}
-.team-pill.tr{background:linear-gradient(135deg,var(--c-talk),var(--c-fails))}
+
+.cat-pill{display:inline-block;font-size:9px;padding:2px 7px;border-radius:8px;
+  margin-left:6px;font-weight:800;letter-spacing:0.04em;text-transform:uppercase;
+  vertical-align:middle}
+.cat-mm-main{background:var(--mm-main);color:#fff}
+.cat-mm-roll{background:var(--mm-roll);color:#fff}
+.cat-tr-main{background:var(--tr-main);color:#fff}
+.cat-roll{background:var(--roll);color:#fff}
+.cat-hha{background:var(--hha);color:#fff}
+.cat-pa{background:var(--pa);color:#fff}
+.cat-unassigned{background:var(--unassigned);color:#fff}
+.lead-tag{display:inline-block;font-size:9px;padding:2px 6px;border-radius:6px;
+  margin-left:4px;font-weight:600;color:var(--muted);background:var(--line);
+  vertical-align:middle}
 
 td.alert-cell{background:var(--alert-bg) !important;color:var(--alert-text);
   font-weight:800;border-radius:6px}
@@ -186,9 +223,29 @@ tbody tr:hover td.rollup{background:var(--c-cases-bg)}
 td.rollup.alert-cell{background:var(--alert-bg) !important;color:var(--alert-text)}
 td.rollup.good-cell{background:var(--good-bg) !important;color:var(--good-text)}
 
+.change-up{color:var(--good);font-weight:800}
+.change-down{color:var(--alert);font-weight:800}
+.change-flat{color:var(--muted);font-weight:600}
+.arrow{display:inline-block;margin-right:3px;font-size:14px}
+
 .empty{padding:40px;text-align:center;color:var(--muted);font-style:italic}
 .loading{padding:60px;text-align:center;color:var(--muted)}
 .hidden{display:none !important}
+
+.cat-band{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));
+  gap:10px;margin-bottom:16px}
+.cat-card{background:var(--panel);border-radius:12px;padding:12px 14px;
+  border-top:4px solid var(--muted);box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.cat-card.mm-main{border-top-color:var(--mm-main);background:linear-gradient(180deg,var(--mm-main-bg) 0%,var(--panel) 40%)}
+.cat-card.mm-roll{border-top-color:var(--mm-roll);background:linear-gradient(180deg,var(--mm-roll-bg) 0%,var(--panel) 40%)}
+.cat-card.tr-main{border-top-color:var(--tr-main);background:linear-gradient(180deg,var(--tr-main-bg) 0%,var(--panel) 40%)}
+.cat-card.roll{border-top-color:var(--roll);background:linear-gradient(180deg,var(--roll-bg) 0%,var(--panel) 40%)}
+.cat-card.hha{border-top-color:var(--hha);background:linear-gradient(180deg,var(--hha-bg) 0%,var(--panel) 40%)}
+.cat-card.pa{border-top-color:var(--pa);background:linear-gradient(180deg,var(--pa-bg) 0%,var(--panel) 40%)}
+.cat-card .cname{font-size:11px;font-weight:800;letter-spacing:0.05em;
+  text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.cat-card .row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0}
+.cat-card .row b{font-variant-numeric:tabular-nums;font-weight:800;color:var(--ink)}
 </style>
 </head>
 <body>
@@ -236,6 +293,70 @@ const VIEWERS = {
   "aatrey.ashish@100ms.ai": "Ashish"
 };
 
+// ---- Team structure (from Team_Structure.xlsx) ----
+// Category codes: mm-main, mm-roll, tr-main, roll (shared rollover), unassigned
+const TEAM_STRUCTURE = {
+  // Jeswanth's MM Team
+  "rakhesh rohidas pal":{cat:"mm-main",lead:"Jeswanth"},
+  "santhosh s":{cat:"mm-main",lead:"Jeswanth"},
+  "pooja y":{cat:"mm-main",lead:"Jeswanth"},
+  "junaid r":{cat:"mm-main",lead:"Jeswanth"},
+  "pavan kumar kalasu":{cat:"mm-main",lead:"Jeswanth"},
+  "ajuba yelmo":{cat:"mm-roll",lead:"Jeswanth"},
+  "sneha pn":{cat:"mm-roll",lead:"Jeswanth"},
+  "sumit chetry":{cat:"mm-roll",lead:"Jeswanth"},
+  "srinivasan baskaran":{cat:"roll",lead:"Jeswanth"},
+  "sanjay s kumar":{cat:"roll",lead:"Jeswanth"},
+  // Karthik's MM Team
+  "christopher samson":{cat:"mm-main",lead:"Karthik"},
+  "nirmal kandhesh b":{cat:"mm-main",lead:"Karthik"},
+  "anushiya s":{cat:"mm-main",lead:"Karthik"},
+  "trilok srinivas":{cat:"mm-main",lead:"Karthik"},
+  "keerthana k":{cat:"mm-main",lead:"Karthik"},
+  "riyaz rehman":{cat:"mm-roll",lead:"Karthik"},
+  "b riyaz ur rehman":{cat:"mm-roll",lead:"Karthik"},
+  "intiyaj sharif":{cat:"mm-roll",lead:"Karthik"},
+  "intiyaj@100ms.ai":{cat:"mm-roll",lead:"Karthik"},
+  "manoj g":{cat:"mm-roll",lead:"Karthik"},
+  "mohammed zeeshan rathod":{cat:"mm-roll",lead:"Karthik"},
+  // Sudeesh's MM Team
+  "hariharan rajapandian":{cat:"mm-main",lead:"Sudeesh"},
+  "megha rai":{cat:"mm-main",lead:"Sudeesh"},
+  "sudharshan s":{cat:"mm-main",lead:"Sudeesh"},
+  "sudharshan. s":{cat:"mm-main",lead:"Sudeesh"},
+  "vinoth n":{cat:"mm-main",lead:"Sudeesh"},
+  "jyoti sharma":{cat:"mm-main",lead:"Sudeesh"},
+  "manjith kumar durthati":{cat:"mm-main",lead:"Sudeesh"},
+  "haseena pulacherla":{cat:"mm-roll",lead:"Sudeesh"},
+  "haseena p":{cat:"mm-roll",lead:"Sudeesh"},
+  // Jeswanth's Transportation Team
+  "shreya pendkur":{cat:"tr-main",lead:"Jeswanth"},
+  "shreya":{cat:"tr-main",lead:"Jeswanth"},
+  "sindhu@100ms.ai":{cat:"tr-main",lead:"Jeswanth"},
+  "sindhu m":{cat:"tr-main",lead:"Jeswanth"},
+  "nandha kumar":{cat:"tr-main",lead:"Jeswanth"},
+  "nandha kumar r":{cat:"tr-main",lead:"Jeswanth"},
+  // Human Handoff Audit team (moved starting Aug 2026)
+  "abu talha":{cat:"hha",lead:"-",note:"Moved to HHA team from Aug 2026"},
+  "kelam siva sankar":{cat:"hha",lead:"-",note:"Moved to HHA team from Aug 2026"},
+  // PA team (moved from MM permanently on 22-Aug-2026)
+  "jennifer":{cat:"pa",lead:"-",note:"Moved from MM to PA team on 22-Aug-2026"},
+  "jennifer sb":{cat:"pa",lead:"-",note:"Moved from MM to PA team on 22-Aug-2026"},
+  "sandhya v":{cat:"pa",lead:"-",note:"Moved from MM to PA team on 22-Aug-2026"},
+};
+const CAT_LABEL = {"mm-main":"MM Main","mm-roll":"MM Rollover","tr-main":"Transport Main","roll":"Rollover","hha":"HHA","pa":"PA Team","unassigned":"Unassigned"};
+const CAT_ORDER = ["mm-main","mm-roll","tr-main","roll","hha","pa","unassigned"];
+
+function getTeamInfo(name){
+  const k = String(name||"").toLowerCase().trim();
+  if (TEAM_STRUCTURE[k]) return TEAM_STRUCTURE[k];
+  // fuzzy: try first-word match if exactly one match
+  const first = k.split(/[\s.@]/)[0];
+  const matches = Object.entries(TEAM_STRUCTURE).filter(([key]) => key.split(/[\s.@]/)[0] === first);
+  if (matches.length === 1) return matches[0][1];
+  return {cat:"unassigned", lead:"-"};
+}
+
 const $ = id => document.getElementById(id);
 const gate = $("gate"), app = $("app"), emailInp = $("emailInp"), gateErr = $("gateErr");
 
@@ -270,9 +391,11 @@ try {
 } catch(e){}
 
 let DATA = {}, MONTHS = [];
+let STATE = {view:null, catFilter:"all"};
 const ALERT_DAY = 8, ALERT_AVG = 10;
+const ATTENTION_MONTHS_FROM = "September 2026";
+const ATTENTION_AVG_THRESHOLD = 8;
 const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const fmtSecs = s => { s = +s||0; const h=Math.floor(s/3600), m=Math.floor((s%3600)/60); return h?`${h}h ${m}m`:(s>0?`${m}m`:"—"); };
 
 async function loadData(){
   try {
@@ -280,6 +403,15 @@ async function loadData(){
     if (!r.ok) throw new Error("HTTP " + r.status);
     DATA = await r.json();
     MONTHS = Object.keys(DATA);
+    // enrich employees with category
+    for (const m of MONTHS) {
+      for (const e of DATA[m].employees) {
+        const info = getTeamInfo(e.name);
+        e.cat = info.cat;
+        e.lead = info.lead;
+        e.note = info.note || "";
+      }
+    }
     $("loading").classList.add("hidden");
     $("tabs").classList.remove("hidden");
     const def = MONTHS.find(m => DATA[m].employees.some(e => Object.values(e.days).some(x => x.s === "W"))) || MONTHS[0];
@@ -299,26 +431,21 @@ async function loadData(){
 }
 
 function summarize(e){
-  let sum=0, worked=0, leaves=0, qc=0, alertDays=0, talk=0, fails=0, review=0;
+  let sum=0, worked=0, leaves=0, qc=0, alertDays=0;
   Object.values(e.days).forEach(x => {
     if (x.s === "W") {
       sum += x.v||0; worked++;
       if ((x.v||0) < ALERT_DAY) alertDays++;
-      talk += x.tt||0; fails += x.f||0; review += x.r||0;
     } else if (x.s === "L") leaves++;
     else if (x.s === "QC") qc++;
   });
   const avg = worked ? sum/worked : 0;
-  return {sum, worked, avg, leaves, qc, alertDays, talk, fails, review, avgAlert: worked>0 && avg<ALERT_AVG};
+  return {sum, worked, avg, leaves, qc, alertDays, avgAlert: worked>0 && avg<ALERT_AVG};
 }
 function countAlerts(m){
   let t=0; DATA[m].employees.forEach(e => { const s=summarize(e); t += s.alertDays + (s.avgAlert?1:0); }); return t;
 }
-const ATTENTION_MONTHS_FROM = "September 2026"; // include this month and later
-const ATTENTION_AVG_THRESHOLD = 8;
-
 function attentionRows(){
-  // return list of {name, team, month, avg, sum, worked, daysBelow8}
   const rows = [];
   const startIdx = MONTHS.indexOf(ATTENTION_MONTHS_FROM);
   if (startIdx < 0) return rows;
@@ -327,13 +454,19 @@ function attentionRows(){
     DATA[m].employees.forEach(e => {
       const s = summarize(e);
       if (s.worked > 0 && s.avg < ATTENTION_AVG_THRESHOLD){
-        rows.push({name: e.name, team: e.team, month: m,
+        rows.push({name: e.name, cat: e.cat, lead: e.lead, month: m,
           avg: s.avg, sum: s.sum, worked: s.worked, daysBelow8: s.alertDays});
       }
     });
   }
   rows.sort((a,b) => a.avg - b.avg);
   return rows;
+}
+
+function catPill(cat, note){
+  const tip = note ? ` title="${esc(note)}"` : "";
+  const asterisk = note ? "*" : "";
+  return `<span class="cat-pill cat-${cat}"${tip}>${esc(CAT_LABEL[cat])}${asterisk}</span>`;
 }
 
 function renderTabs(active){
@@ -343,81 +476,67 @@ function renderTabs(active){
     return `<button class="tab ${m===active?'active':''}" data-m="${esc(m)}">${esc(m.replace(" 2026",""))}${a?`<span class="dot">${a}</span>`:""}</button>`;
   }).join("");
   const attTab = `<button class="tab tab-attention ${active==='__attention'?'active':''}" data-m="__attention">🚨 Needs Attention${attCount?`<span class="dot">${attCount}</span>`:""}</button>`;
-  $("tabs").innerHTML = attTab + monthTabs;
+  const cmpTab = `<button class="tab tab-compare ${active==='__compare'?'active':''}" data-m="__compare">📈 Comparison</button>`;
+  $("tabs").innerHTML = attTab + cmpTab + monthTabs;
   document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => render(t.dataset.m)));
 }
-function renderAttention(){
-  renderTabs("__attention");
-  $("dataNote").classList.add("hidden");
-  const rows = attentionRows();
-  const summary = `
-    <div class="summary">
-      <div class="stat ${rows.length?'alert':'c-active'}">
-        <div class="lbl"><span class="icon">🚨</span>Agents Needing Attention</div>
-        <div class="val">${rows.length}</div>
-      </div>
-      <div class="stat c-cases">
-        <div class="lbl"><span class="icon">📅</span>Since</div>
-        <div class="val" style="font-size:16px">${esc(ATTENTION_MONTHS_FROM)}</div>
-      </div>
-      <div class="stat c-fails">
-        <div class="lbl"><span class="icon">📊</span>Threshold</div>
-        <div class="val" style="font-size:16px">Avg &lt; ${ATTENTION_AVG_THRESHOLD}</div>
-      </div>
+
+function renderSubfilter(emps, current){
+  const counts = {all: emps.length};
+  CAT_ORDER.forEach(c => counts[c] = emps.filter(e => e.cat === c).length);
+  const btn = (id, label) =>
+    `<button class="chip ${current===id?'on':''}" data-cat="${id}">${label}<span class="num">${counts[id]||0}</span></button>`;
+  const parts = [btn("all", "All")];
+  CAT_ORDER.forEach(c => { if (counts[c] > 0) parts.push(btn(c, CAT_LABEL[c])); });
+  return `<div class="subfilter">${parts.join("")}</div>`;
+}
+
+function renderCatBand(emps){
+  const groups = {};
+  CAT_ORDER.forEach(c => groups[c] = []);
+  emps.forEach(e => { if (groups[e.cat]) groups[e.cat].push(e); });
+  const cards = CAT_ORDER.map(c => {
+    const list = groups[c];
+    if (!list.length) return "";
+    let sum=0, worked=0, active=0;
+    list.forEach(e => { const s = summarize(e); sum += s.sum; worked += s.worked; if (s.worked>0) active++; });
+    const avg = worked ? sum/worked : 0;
+    const cls = c.replace(/-/g,"-");
+    return `<div class="cat-card ${cls}">
+      <div class="cname">${esc(CAT_LABEL[c])} · ${list.length} agent${list.length!==1?'s':''}</div>
+      <div class="row"><span>Total Cases</span><b>${sum.toLocaleString()}</b></div>
+      <div class="row"><span>Team Avg</span><b>${avg.toFixed(2)}</b></div>
+      <div class="row"><span>Active</span><b>${active}</b></div>
     </div>`;
-  if (!rows.length){
-    $("content").innerHTML = summary + `
-      <div class="tbl-wrap"><div class="empty">🎉 No agents currently below the attention threshold. Great work!</div></div>`;
-    return;
-  }
-  const head = `<tr>
-    <th class="emp">Agent</th>
-    <th>Month</th>
-    <th>Avg / Day</th>
-    <th>Total Cases</th>
-    <th>Days Worked</th>
-    <th>Days &lt; 8</th>
-  </tr>`;
-  const body = rows.map(r => {
-    const pill = `<span class="team-pill ${r.team==='Transport'?'tr':''}">${r.team}</span>`;
-    return `<tr>
-      <td class="emp">${esc(r.name)}${pill}</td>
-      <td>${esc(r.month.replace(" 2026",""))}</td>
-      <td class="alert-cell">${r.avg.toFixed(2)}</td>
-      <td>${r.sum}</td>
-      <td>${r.worked}</td>
-      <td class="${r.daysBelow8>0?'alert-cell':''}">${r.daysBelow8}</td>
-    </tr>`;
   }).join("");
-  $("content").innerHTML = summary + `
-    <div class="data-note"><b>Action needed:</b> The agents below have a monthly average of fewer than ${ATTENTION_AVG_THRESHOLD} cases per day (from ${esc(ATTENTION_MONTHS_FROM)} onward). Sorted worst first.</div>
-    <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
-  `;
+  return `<div class="cat-band">${cards}</div>`;
 }
 
 function render(month){
+  STATE.view = month;
   if (month === "__attention"){ renderAttention(); return; }
+  if (month === "__compare"){ renderCompare(); return; }
+  STATE.catFilter = STATE.catFilter || "all";
   renderTabs(month);
   $("dataNote").classList.add("hidden");
   const md = DATA[month];
-  const emps = md.employees.map(e => ({...e, s: summarize(e)}));
-  const hasData = emps.some(e => e.s.worked > 0);
+  const allEmps = md.employees;
+  const hasData = allEmps.some(e => Object.values(e.days).some(x => x.s === "W"));
   if (!hasData) {
     $("content").innerHTML = `<div class="tbl-wrap"><div class="empty">No production data for ${esc(month)} yet.</div></div>`;
     return;
   }
+  const catBand = renderCatBand(allEmps);
+  const subfilter = renderSubfilter(allEmps, STATE.catFilter);
+  const filtered = STATE.catFilter === "all" ? allEmps : allEmps.filter(e => e.cat === STATE.catFilter);
+  const emps = filtered.map(e => ({...e, s: summarize(e)}));
+
   const totalCases = emps.reduce((a,e)=>a+e.s.sum,0);
   const totalWorked = emps.reduce((a,e)=>a+e.s.worked,0);
   const teamAvg = totalWorked ? totalCases/totalWorked : 0;
   const active = emps.filter(e=>e.s.worked>0).length;
   const dayAlerts = emps.reduce((a,e)=>a+e.s.alertDays,0);
   const avgAlerts = emps.filter(e=>e.s.avgAlert).length;
-  const totalTalk = emps.reduce((a,e)=>a+e.s.talk,0);
-  const totalFails = emps.reduce((a,e)=>a+e.s.fails,0);
-  const totalReview = emps.reduce((a,e)=>a+e.s.review,0);
-
-  const noData = false;
-  $("dataNote").classList.add("hidden");
 
   const kpis = `
     <div class="stat c-cases"><div class="lbl"><span class="icon">📋</span>Total Cases</div><div class="val">${totalCases.toLocaleString()}</div></div>
@@ -428,7 +547,7 @@ function render(month){
   `;
   const days = md.days;
   const head = `<tr>
-    <th class="emp">Employee</th>
+    <th class="emp">Agent</th>
     ${days.map(d => `<th>${d.d}<br><span class="wd">${d.wd||""}</span></th>`).join("")}
     <th class="rollup">Total</th>
     <th class="rollup">Avg</th>
@@ -454,23 +573,162 @@ function render(month){
     }).join("");
     const avgCls = e.s.worked === 0 ? "" : (e.s.avgAlert ? "alert-cell" : "good-cell");
     const avgTxt = e.s.worked ? e.s.avg.toFixed(2) : "—";
-    const pill = `<span class="team-pill ${e.team==='Transport'?'tr':''}">${e.team}</span>`;
     return `<tr>
-      <td class="emp">${esc(e.name)}${pill}</td>
+      <td class="emp">${esc(e.name)}${catPill(e.cat, e.note)}${e.lead!=='-'?`<span class="lead-tag">${esc(e.lead)}</span>`:""}</td>
       ${cells}
       <td class="rollup">${e.s.sum}</td>
       <td class="rollup ${avgCls}">${avgTxt}</td>
     </tr>`;
   }).join("");
   $("content").innerHTML = `
+    ${catBand}
+    ${subfilter}
     <div class="summary">${kpis}</div>
     <div class="legend">
-      <span class="chip"><span class="box" style="background:var(--alert-bg);border:2px solid var(--alert)"></span>Alert: daily &lt; 8 or avg &lt; 10</span>
-      <span class="chip"><span class="box" style="background:var(--good-bg);border:2px solid var(--good)"></span>Good: day ≥ 12 or avg ≥ 10</span>
+      <span class="chip"><span class="box" style="background:var(--alert-bg);border-color:var(--alert)"></span>Alert: daily &lt; 8 or avg &lt; 10</span>
+      <span class="chip"><span class="box" style="background:var(--good-bg);border-color:var(--good)"></span>Good: day ≥ 12 or avg ≥ 10</span>
       <span class="chip" style="color:var(--qc)"><span class="box" style="background:var(--qc)"></span>QC</span>
       <span class="chip" style="color:var(--leave)"><span class="box" style="background:var(--leave)"></span>L = Leave</span>
       <span class="chip" style="color:var(--holiday)"><span class="box" style="background:var(--holiday)"></span>H = Holiday</span>
     </div>
+    <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+  `;
+  // subfilter click wiring
+  document.querySelectorAll(".subfilter .chip").forEach(b => b.addEventListener("click", () => {
+    STATE.catFilter = b.dataset.cat;
+    render(month);
+  }));
+}
+
+function renderAttention(){
+  renderTabs("__attention");
+  $("dataNote").classList.add("hidden");
+  const rows = attentionRows();
+  const summary = `
+    <div class="summary">
+      <div class="stat ${rows.length?'alert':'c-active'}">
+        <div class="lbl"><span class="icon">🚨</span>Agents Needing Attention</div>
+        <div class="val">${rows.length}</div>
+      </div>
+      <div class="stat c-cases">
+        <div class="lbl"><span class="icon">📅</span>Since</div>
+        <div class="val" style="font-size:16px">${esc(ATTENTION_MONTHS_FROM)}</div>
+      </div>
+      <div class="stat c-fails">
+        <div class="lbl"><span class="icon">📊</span>Threshold</div>
+        <div class="val" style="font-size:16px">Avg &lt; ${ATTENTION_AVG_THRESHOLD}</div>
+      </div>
+    </div>`;
+  if (!rows.length){
+    $("content").innerHTML = summary + `<div class="tbl-wrap"><div class="empty">🎉 No agents currently below the attention threshold.</div></div>`;
+    return;
+  }
+  const head = `<tr>
+    <th class="emp">Agent</th><th>Month</th><th>Avg / Day</th>
+    <th>Total Cases</th><th>Days Worked</th><th>Days &lt; 8</th>
+  </tr>`;
+  const body = rows.map(r => `
+    <tr>
+      <td class="emp">${esc(r.name)}${catPill(r.cat, r.note)}${r.lead!=='-'?`<span class="lead-tag">${esc(r.lead)}</span>`:""}</td>
+      <td>${esc(r.month.replace(" 2026",""))}</td>
+      <td class="alert-cell">${r.avg.toFixed(2)}</td>
+      <td>${r.sum}</td>
+      <td>${r.worked}</td>
+      <td class="${r.daysBelow8>0?'alert-cell':''}">${r.daysBelow8}</td>
+    </tr>`).join("");
+  $("content").innerHTML = summary + `
+    <div class="data-note"><b>Action needed:</b> Agents with monthly average &lt; ${ATTENTION_AVG_THRESHOLD} cases/day (from ${esc(ATTENTION_MONTHS_FROM)} onward). Sorted worst first.</div>
+    <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+  `;
+}
+
+function renderCompare(){
+  renderTabs("__compare");
+  $("dataNote").classList.add("hidden");
+  // Build per-agent per-month totals & avg
+  const monthsWithData = MONTHS.filter(m => DATA[m].employees.some(e => Object.values(e.days).some(x => x.s === "W")));
+  if (monthsWithData.length < 2){
+    $("content").innerHTML = `<div class="tbl-wrap"><div class="empty">Need at least two months of data to compare. Currently have: ${esc(monthsWithData.join(", "))||"none"}.</div></div>`;
+    return;
+  }
+  // Aggregate per agent
+  const agentMap = new Map(); // name -> {cat, lead, months:{month:{sum,avg}}}
+  for (const m of monthsWithData){
+    for (const e of DATA[m].employees){
+      if (!agentMap.has(e.name)) agentMap.set(e.name, {name:e.name, cat:e.cat, lead:e.lead, note:e.note, months:{}});
+      const s = summarize(e);
+      agentMap.get(e.name).months[m] = {sum:s.sum, avg:s.avg, worked:s.worked};
+    }
+  }
+  const agents = Array.from(agentMap.values());
+  // Latest two months for the primary comparison
+  const [prev, curr] = monthsWithData.slice(-2);
+  // Sort by change % desc (biggest improvers first would push best up; put worst first for attention)
+  agents.forEach(a => {
+    const p = a.months[prev]?.avg || 0;
+    const c = a.months[curr]?.avg || 0;
+    a.change = p > 0 ? ((c - p) / p) * 100 : (c > 0 ? 100 : 0);
+    a.diff = c - p;
+  });
+  agents.sort((a,b) => a.change - b.change); // worst first
+
+  // Team-level summary
+  const teamPrev = agents.reduce((sum,a) => sum + (a.months[prev]?.sum||0), 0);
+  const teamCurr = agents.reduce((sum,a) => sum + (a.months[curr]?.sum||0), 0);
+  const teamChange = teamPrev > 0 ? ((teamCurr - teamPrev) / teamPrev) * 100 : 0;
+  const teamArrow = teamChange > 0.5 ? `<span class="arrow change-up">▲</span>` : teamChange < -0.5 ? `<span class="arrow change-down">▼</span>` : `<span class="arrow change-flat">▬</span>`;
+  const teamCls = teamChange > 0.5 ? "change-up" : teamChange < -0.5 ? "change-down" : "change-flat";
+
+  const kpis = `
+    <div class="summary">
+      <div class="stat c-cases"><div class="lbl">📅 Comparing</div><div class="val" style="font-size:14px">${esc(prev.replace(" 2026",""))} → ${esc(curr.replace(" 2026",""))}</div></div>
+      <div class="stat c-avg"><div class="lbl">📋 ${esc(prev.replace(" 2026",""))} Total</div><div class="val">${teamPrev.toLocaleString()}</div></div>
+      <div class="stat c-avg"><div class="lbl">📋 ${esc(curr.replace(" 2026",""))} Total</div><div class="val">${teamCurr.toLocaleString()}</div></div>
+      <div class="stat ${teamChange<0?'alert':'c-active'}"><div class="lbl">📈 Team Change</div><div class="val ${teamCls}">${teamArrow}${Math.abs(teamChange).toFixed(1)}%</div></div>
+    </div>`;
+
+  // Table columns: Agent | (each month sum) | (each month avg) | Change %
+  const monthCols = monthsWithData.map(m =>
+    `<th>${esc(m.replace(" 2026",""))}<br><span class="wd">Total</span></th>
+     <th>${esc(m.replace(" 2026",""))}<br><span class="wd">Avg</span></th>`
+  ).join("");
+  const head = `<tr>
+    <th class="emp">Agent</th>
+    ${monthCols}
+    <th class="rollup">Change<br><span class="wd">${esc(prev.replace(" 2026",""))} → ${esc(curr.replace(" 2026",""))}</span></th>
+  </tr>`;
+
+  const body = agents.map(a => {
+    const monthCells = monthsWithData.map(m => {
+      const rec = a.months[m];
+      if (!rec || rec.worked === 0) return `<td style="color:var(--muted)">—</td><td style="color:var(--muted)">—</td>`;
+      const avgCls = rec.avg < ALERT_AVG ? "alert-cell" : (rec.avg >= ALERT_AVG ? "good-cell" : "");
+      return `<td>${rec.sum}</td><td class="${avgCls}">${rec.avg.toFixed(2)}</td>`;
+    }).join("");
+    const p = a.months[prev]?.avg || 0;
+    const c = a.months[curr]?.avg || 0;
+    let changeCell;
+    if (p === 0 && c === 0){
+      changeCell = `<td class="rollup change-flat">—</td>`;
+    } else if (p === 0){
+      changeCell = `<td class="rollup change-up"><span class="arrow">▲</span>NEW</td>`;
+    } else if (c === 0){
+      changeCell = `<td class="rollup change-down"><span class="arrow">▼</span>GONE</td>`;
+    } else {
+      const arrow = a.change > 0.5 ? `<span class="arrow">▲</span>` : a.change < -0.5 ? `<span class="arrow">▼</span>` : `<span class="arrow">▬</span>`;
+      const cls = a.change > 0.5 ? "change-up" : a.change < -0.5 ? "change-down" : "change-flat";
+      changeCell = `<td class="rollup ${cls}">${arrow}${Math.abs(a.change).toFixed(1)}%</td>`;
+    }
+    return `<tr>
+      <td class="emp">${esc(a.name)}${catPill(a.cat, a.note)}${a.lead!=='-'?`<span class="lead-tag">${esc(a.lead)}</span>`:""}</td>
+      ${monthCells}
+      ${changeCell}
+    </tr>`;
+  }).join("");
+
+  $("content").innerHTML = `
+    ${kpis}
+    <div class="data-note"><b>Comparison:</b> ${esc(prev)} vs ${esc(curr)} monthly averages. <span class="change-up">▲ Green</span> = improved · <span class="change-down">▼ Red</span> = declined · sorted worst-decline first.</div>
     <div class="tbl-wrap"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
   `;
 }
